@@ -3,9 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ArrowLeft, CarFront, Heart, Layout } from "lucide-react";
+import userExists from "@/lib/userExists";
 
-export default function Header({ isAdminPage = false }) {
-  const isAdmin = true;
+export default async function Header({ isAdminPage = false }) {
+  const user = await userExists();
+
+  const isAdmin = user?.role === "ADMIN";
 
   return (
     <header className="fixed top-0 z-50 bg-white/80 backdrop-blur-md w-full border-b">
