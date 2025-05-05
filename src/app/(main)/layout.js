@@ -1,11 +1,11 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 
-export default async function AuthLayout({ children }) {
+export default async function MainLayout({ children }) {
   return (
     <>
       <Header />
-      <main className="flex justify-center p-40 mt-16">{children}</main>
+      {children}
       <Footer />
     </>
   );

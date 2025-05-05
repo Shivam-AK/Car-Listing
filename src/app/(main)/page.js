@@ -15,7 +15,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <>
+    <main className="mt-16">
       <section className="relative py-16 md:py-28 dotted-background">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
@@ -171,7 +171,7 @@ export default function Home() {
             Frequently Asked Questions
           </h2>
 
-          <Accordion type="single" collapsible className="w-2xl mx-auto">
+          <Accordion type="single" collapsible className="max-w-2xl mx-auto">
             {faqItems.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger>{faq.question}</AccordionTrigger>
@@ -208,6 +208,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </>
+    </main>
   );
 }

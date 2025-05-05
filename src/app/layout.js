@@ -1,15 +1,16 @@
 import { Inter } from "next/font/google";
-import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import "@/app/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Vehiql",
-  description: "Find Your Dream Car.",
+  title: {
+    template: "%s | Vehiql AI",
+    default: "Vehiql AI",
+  },
+  description: "Find Your Dream Car with Vehiql AI.",
 };
 
 export default function RootLayout({ children }) {
@@ -17,10 +18,8 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en">
         <body className={`${inter.className}`}>
-          <Header />
-          <main className="min-h-svh flex flex-col pt-16">{children}</main>
+          {children}
           <Toaster richColors />
-          <Footer />
         </body>
       </html>
     </ClerkProvider>
