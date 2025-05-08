@@ -4,6 +4,7 @@ import DB from "@/lib/prisma.db";
 import { createClient } from "@/lib/superbase";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
 
@@ -98,7 +99,7 @@ export async function processCarImageWithAI(file) {
         (field) => !(field in carDetails)
       );
 
-      if (!missingFields.length > 0) {
+      if (missingFields.length > 0) {
         throw new Error(
           `AI Response missing Required Fields : ${missingFields.join(", ")}`
         );
@@ -121,7 +122,7 @@ export async function processCarImageWithAI(file) {
   }
 }
 
-export async function addCar(carData, images) {
+export async function addCar({ carData, images }) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized User.");
@@ -204,8 +205,7 @@ export async function addCar(carData, images) {
         status: carData.status,
         featured: carData.featured,
         images: imageUrls, // Store the array of image URLs
-        // owner: user,
-        // dealership
+        owner: user.id,
       },
     });
 

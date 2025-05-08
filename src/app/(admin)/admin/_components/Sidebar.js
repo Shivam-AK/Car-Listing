@@ -33,9 +33,9 @@ const routes = [
 export default function Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="flex w-56 h-full flex-col top-16 fixed inset-y-0 z-50">
+    <aside>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex h-full flex-col overflow-y-auto bg-white shadow-sm border-r">
+      <div className="hidden md:flex fixed top-16 inset-y-0 z-50 w-56 h-full flex-col overflow-y-auto bg-white shadow-sm border-r">
         {routes.map((route) => (
           <Link
             key={route.href}
