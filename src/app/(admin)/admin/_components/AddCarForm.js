@@ -66,6 +66,24 @@ const carFormSchema = z.object({
   featured: z.boolean().default(false),
 });
 
+const formatPrice = (price) => {
+  // $2,00,00,000
+  let match;
+  if (price?.includes("-")) {
+    match = price?.match(/- *\$(.*)/);
+  } else {
+    match = price?.match(/ *\$(.*)/);
+  }
+
+  if (match && match?.[1]) {
+    // Remove all commas and convert to number
+    const numberPrice = parseInt(match[1]?.replace(/(,|\+)/g, ""));
+    return `${numberPrice}`; // "20000000"
+  } else {
+    return "";
+  }
+};
+
 export default function AddCarForm() {
   const [activeTab, setActiveTab] = useState("ai");
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -153,15 +171,23 @@ export default function AddCarForm() {
     if (processImageResult?.success) {
       const carDetails = processImageResult.data;
 
+      console.log(carDetails);
+
       // Update form with AI results
       setValue("make", carDetails.make);
       setValue("model", carDetails.model);
       setValue("year", carDetails.year.toString());
       setValue("color", carDetails.color);
-      setValue("bodyType", carDetails.bodyType);
-      setValue("fuelType", carDetails.fuelType);
-      setValue("price", carDetails.price);
-      setValue("mileage", carDetails.mileage);
+      setValue(
+        "bodyType",
+        bodyTypes.includes(carDetails.bodyType) ? carDetails.bodyType : ""
+      );
+      setValue(
+        "fuelType",
+        fuelTypes.includes(carDetails.fuelType) ? carDetails.fuelType : ""
+      );
+      setValue("price", formatPrice(carDetails.price));
+      setValue("mileage", carDetails.mileage.replaceAll(/,/g, ""));
       setValue("transmission", carDetails.transmission);
       setValue("description", carDetails.description);
 
@@ -180,7 +206,7 @@ export default function AddCarForm() {
 
       setActiveTab("manual");
     }
-  }, [processImageResult, uploadedAiImage]);
+  }, [processImageResult]);
 
   const processWithAI = async () => {
     if (!uploadedAiImage) {
