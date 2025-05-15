@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteCar, getCars, updateCarStatus } from "@/actions/cars";
+import { deleteCar, getCars, updateCar } from "@/actions/cars";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -132,7 +132,7 @@ export default function CarList() {
   const router = useRouter();
 
   const [search, setSearch] = useState("");
-  const [carToDelete, setCarToDelete] = useState(null);
+  const [carToAction, setCarToAction] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -158,7 +158,7 @@ export default function CarList() {
     fn: updateCarFn,
     data: updateResult,
     error: updateError,
-  } = useFetch(updateCarStatus);
+  } = useFetch(updateCar);
 
   useEffect(() => {
     fetchCars(search);
@@ -174,6 +174,7 @@ export default function CarList() {
     if (updateResult?.success) {
       toast.success("Car updated successfully");
       fetchCars(search);
+      setEditDialogOpen(false);
     }
   }, [deleteResult, updateResult]);
 
@@ -192,19 +193,21 @@ export default function CarList() {
   }, [carsError, deleteError, updateError]);
 
   const handleToggleFeatured = async (car) => {
-    await updateCarFn(car.id, { featured: !car.featured });
+    const carData = { featured: !car.featured };
+    await updateCarFn({ carId: car.id, carData });
   };
 
   const handleStatusUpdate = async (car, newStatus) => {
-    await updateCarFn(car.id, { status: newStatus });
+    const carData = { status: newStatus };
+    await updateCarFn({ carId: car.id, carData });
   };
 
   const handleDeleteCar = async () => {
-    if (!carToDelete) return;
+    if (!carToAction) return;
 
-    await deleteCarFn(carToDelete.id);
+    await deleteCarFn(carToAction.id);
     setDeleteDialogOpen(false);
-    setCarToDelete(null);
+    setCarToAction(null);
   };
 
   const handleSearchSubmit = () => {
@@ -237,12 +240,6 @@ export default function CarList() {
       featured: false,
     },
   });
-
-  const {
-    data: editCarResult,
-    loading: editCarLoading,
-    fn: editCarFn,
-  } = useFetch(updateCarStatus);
 
   const onMultiImagesDrop = (acceptedFiles) => {
     const validFiles = acceptedFiles.filter((file) => {
@@ -296,9 +293,12 @@ export default function CarList() {
       mileage: parseInt(data.mileage),
       seats: data.seats ? parseInt(data.seats) : null,
     };
-    console.log(carData);
 
-    //   await addCarFn({ carData, images: uploadedImages });
+    await updateCarFn({
+      carId: carToAction.id,
+      carData,
+      images: uploadedImages,
+    });
   };
 
   // Remove image from upload preview
@@ -412,18 +412,19 @@ export default function CarList() {
                             onClick={() => {
                               setValue("make", car.make);
                               setValue("model", car.model);
-                              setValue("year", car.year.toString());
-                              setValue("price", car.price.toString());
-                              setValue("mileage", car.mileage.toString());
+                              setValue("year", car.year?.toString());
+                              setValue("price", car.price?.toString());
+                              setValue("mileage", car.mileage?.toString());
                               setValue("color", car.color);
                               setValue("fuelType", car.fuelType);
                               setValue("transmission", car.transmission);
                               setValue("bodyType", car.bodyType);
-                              setValue("seats", car.seats.toString());
+                              setValue("seats", car.seats?.toString());
                               setValue("status", car.status);
                               setValue("description", car.description);
                               setValue("featured", car.featured);
                               setUploadedImages(car.images);
+                              setCarToAction(car);
                               setEditDialogOpen(true);
                             }}
                           >
@@ -458,7 +459,7 @@ export default function CarList() {
                           <DropdownMenuItem
                             className="text-red-600"
                             onClick={() => {
-                              setCarToDelete(car);
+                              setCarToAction(car);
                               setDeleteDialogOpen(true);
                             }}
                           >
@@ -497,8 +498,8 @@ export default function CarList() {
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {carToDelete?.make}{" "}
-              {carToDelete?.model} ({carToDelete?.year})? This action cannot be
+              Are you sure you want to delete {carToAction?.make}{" "}
+              {carToAction?.model} ({carToAction?.year})? This action cannot be
               undone.
             </DialogDescription>
           </DialogHeader>
@@ -665,7 +666,7 @@ export default function CarList() {
                     </SelectContent>
                   </Select>
                   {errors.fuelType && (
-                    <p className="text-xs text-red-500">
+                    <p className="text-xs text-red-500 mt-2">
                       {errors.fuelType.message}
                     </p>
                   )}
@@ -695,7 +696,7 @@ export default function CarList() {
                     </SelectContent>
                   </Select>
                   {errors.transmission && (
-                    <p className="text-xs text-red-500">
+                    <p className="text-xs text-red-500 mt-2">
                       {errors.transmission.message}
                     </p>
                   )}
@@ -725,7 +726,7 @@ export default function CarList() {
                     </SelectContent>
                   </Select>
                   {errors.bodyType && (
-                    <p className="text-xs text-red-500">
+                    <p className="text-xs text-red-500 mt-2">
                       {errors.bodyType.message}
                     </p>
                   )}
@@ -878,9 +879,9 @@ export default function CarList() {
               <Button
                 type="submit"
                 className="w-full md:w-auto"
-                disabled={editCarLoading}
+                disabled={updatingCar}
               >
-                {editCarLoading ? (
+                {updatingCar ? (
                   <>
                     <Loader2 className="mr-1 size-4 animate-spin" /> Loading...
                   </>

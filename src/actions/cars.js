@@ -119,6 +119,7 @@ export async function processCarImageWithAI(file) {
       };
     }
   } catch (error) {
+    console.error("Gemini API error :", error.message);
     throw new Error("Gemini API error :", error.message);
   }
 }
@@ -206,7 +207,6 @@ export async function addCar({ carData, images }) {
         status: carData.status,
         featured: carData.featured,
         images: imageUrls, // Store the array of image URLs
-        owner: user.id,
       },
     });
 
@@ -217,6 +217,7 @@ export async function addCar({ carData, images }) {
       success: true,
     };
   } catch (error) {
+    console.error("Error Adding New car:", error.message);
     throw new Error("Error Adding New car :", error.message);
   }
 }
@@ -339,7 +340,7 @@ export async function deleteCar(id) {
   }
 }
 
-export async function updateCarStatus(id, updateData) {
+export async function updateCar({ carId, carData, images }) {
   try {
     // Check is Authorized
     const { userId } = await auth();
@@ -351,20 +352,101 @@ export async function updateCarStatus(id, updateData) {
 
     if (!user) throw new Error("User Not Found");
 
-    // Update the car
-    await DB.car.update({
-      where: { id },
-      data: updateData,
+    const existingCar = await DB.car.findUnique({
+      where: { id: carId },
     });
 
-    // Revalidate the cars list page
-    revalidatePath("/admin/cars");
+    if (!existingCar) throw new Error("Car Not Found");
+    if (user.role !== "ADMIN")
+      throw new Error("Not Authorized to Update this Car");
 
-    return {
-      success: true,
-    };
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const imageUrls = [];
+
+    if (images && images?.length > 0) {
+      const folderPath = `cars/${carId}`;
+
+      for (let i = 0; i < images.length; i++) {
+        const base64Data = images[i];
+
+        if (!base64Data || !base64Data.startsWith("data:image/")) {
+          console.warn("Skipping invalid image data");
+          imageUrls.push(base64Data);
+          continue;
+        }
+
+        const base64 = base64Data.split(",")[1];
+        const imageBuffer = Buffer.from(base64, "base64");
+
+        const mimeMatch = base64Data.match(/data:image\/([a-zA-Z0-9]+);/);
+        const fileExtension = mimeMatch ? mimeMatch[1] : "jpeg";
+
+        const fileName = `image-${Date.now()}-${i}.${fileExtension}`;
+        const filePath = `${folderPath}/${fileName}`;
+
+        const { data, error } = await supabase.storage
+          .from("car-listing-image")
+          .upload(filePath, imageBuffer, {
+            contentType: `image/${fileExtension}`,
+          });
+
+        if (error) {
+          console.error("Error uploading image:", error);
+          throw new Error(`Failed to upload image: ${error.message}`);
+        }
+
+        const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-listing-image/${filePath}`;
+        imageUrls.push(publicUrl);
+      }
+
+      if (imageUrls.length === 0) {
+        throw new Error("No Valid Image were Uploaded.");
+      }
+
+      const deleteImagePath = existingCar.images
+        .filter((image) => !imageUrls.includes(image))
+        .map((url) => url.split("car-listing-image/")[1]);
+
+      if (deleteImagePath.length > 0) {
+        const { data, error } = await supabase.storage
+          .from("car-listing-image")
+          .remove([deleteImagePath]);
+
+        if (error) {
+          console.error("Error Deleting image:", error);
+          throw new Error(`Failed to Delete image: ${error.message}`);
+        }
+      }
+    }
+
+    const updateData = {};
+
+    if (images && images?.length > 0) {
+      if (imageUrls.toString() !== existingCar.images.toString()) {
+        updateData.images = imageUrls;
+      }
+    }
+
+    for (const key in carData) {
+      if (carData[key] != existingCar[key]) {
+        updateData[key] = carData[key];
+      }
+    }
+
+    // Update the car
+    console.log(updateData);
+    if (Object.keys(updateData).length > 0) {
+      await DB.car.update({
+        where: { id: carId },
+        data: updateData,
+      });
+    }
+
+    return { success: true };
   } catch (error) {
-    console.error("Error Updating Car:", error);
+    console.error("Error Updating Car:", error?.message);
     return {
       success: false,
       error: error.message,

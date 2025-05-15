@@ -42,7 +42,7 @@ CREATE TABLE "Car" (
     "status" "CarStatus" NOT NULL DEFAULT 'AVAILABLE',
     "featured" BOOLEAN NOT NULL DEFAULT false,
     "images" TEXT[],
-    "owner" TEXT NOT NULL,
+    "dealershipInfoId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -58,6 +58,7 @@ CREATE TABLE "DealershipInfo" (
     "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT,
 
     CONSTRAINT "DealershipInfo_pkey" PRIMARY KEY ("id")
 );
@@ -130,7 +131,7 @@ CREATE INDEX "Car_fuelType_idx" ON "Car"("fuelType");
 CREATE INDEX "Car_featured_idx" ON "Car"("featured");
 
 -- CreateIndex
-CREATE INDEX "Car_owner_idx" ON "Car"("owner");
+CREATE UNIQUE INDEX "DealershipInfo_userId_key" ON "DealershipInfo"("userId");
 
 -- CreateIndex
 CREATE INDEX "WorkingHour_dealershipId_idx" ON "WorkingHour"("dealershipId");
@@ -166,7 +167,10 @@ CREATE INDEX "TestDriveBooking_bookingDate_idx" ON "TestDriveBooking"("bookingDa
 CREATE INDEX "TestDriveBooking_status_idx" ON "TestDriveBooking"("status");
 
 -- AddForeignKey
-ALTER TABLE "Car" ADD CONSTRAINT "Car_owner_fkey" FOREIGN KEY ("owner") REFERENCES "DealershipInfo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Car" ADD CONSTRAINT "Car_dealershipInfoId_fkey" FOREIGN KEY ("dealershipInfoId") REFERENCES "DealershipInfo"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DealershipInfo" ADD CONSTRAINT "DealershipInfo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "WorkingHour" ADD CONSTRAINT "WorkingHour_dealershipId_fkey" FOREIGN KEY ("dealershipId") REFERENCES "DealershipInfo"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -25,13 +25,14 @@ model User {
   role        UserRole           @default(USER)
   savedCars   UserSavedCar[]
   testDrives  TestDriveBooking[]
+  dealership  DealershipInfo?
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 }
 
 enum UserRole {
   USER
-  DEALER
+  DEALERSHIP
   ADMIN
 }
 
@@ -51,10 +52,10 @@ model Car {
   status            CarStatus          @default(AVAILABLE)
   featured          Boolean            @default(false)
   images            String[] // Array of Supabase storage URLs
-  owner             String
-  dealership        DealershipInfo     @relation(fields: [owner], references: [id], onDelete: Cascade)
   savedBy           UserSavedCar[]
   testDriveBookings TestDriveBooking[]
+  dealershipInfoId  String?
+  DealershipInfo    DealershipInfo?    @relation(fields: [dealershipInfoId], references: [id])
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -65,7 +66,6 @@ model Car {
   @@index([status])
   @@index([fuelType])
   @@index([featured])
-  @@index([owner])
 }
 
 enum CarStatus {
@@ -83,7 +83,9 @@ model DealershipInfo {
   workingHours WorkingHour[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  Car          Car[]
+  userId       String?       @unique
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cars         Car[]
 }
 
 model WorkingHour {
