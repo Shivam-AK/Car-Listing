@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "./ui/input";
 import { Camera, Upload } from "lucide-react";
-import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 export default function HomeSearch() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -82,7 +82,7 @@ export default function HomeSearch() {
             placeholder="Enter make, model, or use our AI Image Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-6 pr-36 py-6 w-full rounded-full border-gray-300 bg-white/95 backdrop-blur-md"
+            className="w-full rounded-full border-gray-300 bg-white/95 py-6 pr-36 pl-6 backdrop-blur-md"
           />
 
           <div className="absolute right-24">
@@ -105,13 +105,13 @@ export default function HomeSearch() {
       {isImageSearchActive && (
         <div className="mt-4">
           <form onSubmit={handleImageSearch}>
-            <div className="border-2 border-dashed border-gray-300 rounded-3xl p-4 text-center">
+            <div className="rounded-3xl border-2 border-dashed border-gray-300 p-4 text-center">
               {imagePreview ? (
                 <div className="flex flex-col items-center">
                   <img
                     src={imagePreview}
                     alt="Car preview"
-                    className="h-40 object-contain mb-4"
+                    className="mb-4 h-40 object-contain"
                   />
                   <Button
                     variant="destructive"
@@ -128,16 +128,16 @@ export default function HomeSearch() {
                 <div {...getRootProps()} className="cursor-pointer">
                   <input {...getInputProps()} />
                   <div className="flex flex-col items-center">
-                    <Upload className="h-12 w-12 text-gray-400 mb-2" />
-                    <p className="text-gray-300 mb-2">
+                    <Upload className="mb-2 h-12 w-12 text-gray-400" />
+                    <p className="mb-2 text-gray-300">
                       {isDragActive && !isDragReject
                         ? "Leave the file here to upload"
                         : "Drag & drop a car image or click to select"}
                     </p>
                     {isDragReject && (
-                      <p className="text-red-500 mb-2">Invalid image type</p>
+                      <p className="mb-2 text-red-500">Invalid image type</p>
                     )}
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-sm text-gray-400">
                       Supports: JPG, JPEG, PNG (max 5MB)
                     </p>
                   </div>

@@ -1,6 +1,6 @@
 import { getAdmin } from "@/actions/admin";
-import { notFound } from "next/navigation";
 import Header from "@/components/Header";
+import { notFound } from "next/navigation";
 import Sidebar from "./admin/_components/Sidebar";
 
 export default async function AdminLayout({ children }) {
@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }) {
     <>
       <Header isAdminPage />
       <Sidebar />
-      <main className="md:ml-56 mt-16 h-full">{children}</main>
+      <main className="mt-16 h-full md:ml-56">{children}</main>
     </>
   );
 }

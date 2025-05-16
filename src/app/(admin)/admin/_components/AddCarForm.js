@@ -1,13 +1,7 @@
 "use client";
 
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { addCar, processCarImageWithAI } from "@/actions/cars";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,6 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -22,16 +19,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useDropzone } from "react-dropzone";
-import { toast } from "sonner";
-import { Camera, Loader2, Upload, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import useFetch from "@/hooks/useFetch";
-import { addCar, processCarImageWithAI } from "@/actions/cars";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Camera, Loader2, Upload, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 // Predefined options
 const fuelTypes = ["Petrol", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid"];
@@ -313,7 +313,7 @@ export default function AddCarForm() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {/* Make */}
                   <div className="space-y-2">
                     <Label htmlFor="make">Make</Label>
@@ -592,39 +592,39 @@ export default function AddCarForm() {
                   <div
                     {...getMultiImageRootProps()}
                     className={cn(
-                      "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50 transition",
+                      "cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition hover:bg-gray-50",
                       imageError ? "border-red-500" : "border-gray-300"
                     )}
                   >
                     <input {...getMultiImageInputProps()} id="images" />
                     <div className="flex-center flex-col">
-                      <Upload className="size-12 text-gray-400 mb-2" />
+                      <Upload className="mb-2 size-12 text-gray-400" />
                       <p className="text-base text-gray-600">
                         Drag & drop or click to upload multiple images
                       </p>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="mt-1 text-sm text-gray-500">
                         Supports: JPG, JPEG, PNG, WebP, (max 5MB each)
                       </p>
                     </div>
                   </div>
                   {imageError && (
-                    <p className="text-xs text-red-500 mt-2">{imageError}</p>
+                    <p className="mt-2 text-xs text-red-500">{imageError}</p>
                   )}
 
                   {/* Image Previews */}
                   {uploadedImages.length > 0 && (
                     <div className="mt-4">
-                      <h3 className="text-sm font-medium mb-2">
+                      <h3 className="mb-2 text-sm font-medium">
                         Uploaded Image {uploadedImages.length}
                       </h3>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         {uploadedImages.map((image, index) => (
-                          <div key={index} className="relative group">
+                          <div key={index} className="group relative">
                             <Image
                               src={image}
                               alt={`Car Image ${index}`}
-                              className="w-full h-28 object-cover rounded-md"
+                              className="h-28 w-full rounded-md object-cover"
                               height={50}
                               width={50}
                               priority
@@ -633,7 +633,7 @@ export default function AddCarForm() {
                               type="button"
                               size="icon"
                               variant="destructive"
-                              className="absolute top-1 right-1 size-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                              className="absolute top-1 right-1 size-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                               onClick={() => removeImage(index)}
                             >
                               <X className="size-3" />
@@ -673,13 +673,13 @@ export default function AddCarForm() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                <div className="rounded-lg border-2 border-dashed p-6 text-center">
                   {imagePreview ? (
                     <div className="flex flex-col items-center">
                       <img
                         src={imagePreview}
                         alt="Car Preview"
-                        className="max-h-56 max-w-full object-contain mb-4"
+                        className="mb-4 max-h-56 max-w-full object-contain"
                       />
                       <div className="flex gap-2">
                         <Button
@@ -714,15 +714,15 @@ export default function AddCarForm() {
                   ) : (
                     <div
                       {...getAiRootProps()}
-                      className="cursor-pointer hover:bg-gray-50 transition"
+                      className="cursor-pointer transition hover:bg-gray-50"
                     >
                       <input {...getAiInputProps()} />
                       <div className="flex-center flex-col">
-                        <Camera className="size-12 text-gray-400 mb-2" />
+                        <Camera className="mb-2 size-12 text-gray-400" />
                         <p className="text-base text-gray-600">
                           Drag & Drop or Click to Upload a Car Image
                         </p>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="mt-1 text-sm text-gray-500">
                           Supports: JPG, JPEG, PNG, WebP, (max 5MB each)
                         </p>
                       </div>
@@ -730,9 +730,9 @@ export default function AddCarForm() {
                   )}
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <h3 className="font-medium mb-2">How it works</h3>
-                  <ol className="space-y-2 text-sm text-gray-600 list-decimal pl-4">
+                <div className="rounded-md bg-gray-50 p-4">
+                  <h3 className="mb-2 font-medium">How it works</h3>
+                  <ol className="list-decimal space-y-2 pl-4 text-sm text-gray-600">
                     <li>Upload a clear image of the car</li>
                     <li>Click "Extract Details" to analyze with Gemini AI</li>
                     <li>Review the extracted information</li>
@@ -741,8 +741,8 @@ export default function AddCarForm() {
                   </ol>
                 </div>
 
-                <div className="bg-amber-50 p-4 rounded-md">
-                  <h3 className="font-medium text-amber-800 mb-1">
+                <div className="rounded-md bg-amber-50 p-4">
+                  <h3 className="mb-1 font-medium text-amber-800">
                     Tips for best results
                   </h3>
                   <ul className="space-y-1 text-sm text-amber-700">

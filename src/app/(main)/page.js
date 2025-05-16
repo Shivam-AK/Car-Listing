@@ -16,13 +16,13 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="mt-16">
-      <section className="relative py-16 md:py-28 dotted-background">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="dotted-background relative py-16 md:py-28">
+        <div className="mx-auto max-w-4xl text-center">
           <div className="mb-8">
-            <h1 className="gradient-title text-5xl md:text-8xl mb-4">
+            <h1 className="gradient-title mb-4 text-5xl md:text-8xl">
               Find Your Dream Car with Vehiql AI
             </h1>
-            <p className="text-xl text-gray-300 mx-auto max-w-2xl mb-8">
+            <p className="mx-auto mb-8 max-w-2xl text-xl text-gray-300">
               Advanced AI Car Search and test drive from thousands of vehicles.
             </p>
 
@@ -43,7 +43,7 @@ export default function Home() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featuredCars.map((car) => (
               <CarCard key={car.id} car={car} />
             ))}
@@ -52,7 +52,7 @@ export default function Home() {
       </section>
 
       {/* Browse by Make */}
-      <section className="py-12 bg-gray-50">
+      <section className="bg-gray-50 py-12">
         <div className="container mx-auto px-5">
           <div className="flex-between mb-8">
             <h2 className="text-2xl font-bold">Browse by Make</h2>
@@ -63,14 +63,14 @@ export default function Home() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
             {carMakes.map((make) => (
               <Link
                 key={make.id}
                 href={`/cars?make=${make.name}`}
-                className="bg-white rounded-lg shadow p-4 text-center hover:shadow-md transition cursor-pointer"
+                className="cursor-pointer rounded-lg bg-white p-4 text-center shadow transition hover:shadow-md"
               >
-                <div className="relative h-16 w-auto mx-auto mb-2">
+                <div className="relative mx-auto mb-2 h-16 w-auto">
                   <Image
                     src={make.image}
                     alt={make.name}
@@ -88,36 +88,36 @@ export default function Home() {
       {/* Why Choose Our Platform */}
       <section className="py-12">
         <div className="container mx-auto px-5">
-          <h2 className="text-2xl font-bold text-center mb-12">
+          <h2 className="mb-12 text-center text-2xl font-bold">
             Why Choose Our Platform
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="text-center">
-              <div className="bg-blue-100 text-blue-700 size-16 rounded-full flex-center mx-auto mb-4">
+              <div className="flex-center mx-auto mb-4 size-16 rounded-full bg-blue-100 text-blue-700">
                 <Car className="size-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Wide Selection</h3>
+              <h3 className="mb-2 text-xl font-bold">Wide Selection</h3>
               <p className="text-gray-600">
                 Thousands of verified vehicles from trusted dealerships and
                 private sellers.
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-blue-100 text-blue-700 size-16 rounded-full flex-center mx-auto mb-4">
+              <div className="flex-center mx-auto mb-4 size-16 rounded-full bg-blue-100 text-blue-700">
                 <Calendar className="size-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Easy Test Drive</h3>
+              <h3 className="mb-2 text-xl font-bold">Easy Test Drive</h3>
               <p className="text-gray-600">
                 Book a test drive online in minutes, with flexible scheduling
                 options.
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-blue-100 text-blue-700 size-16 rounded-full flex-center mx-auto mb-4">
+              <div className="flex-center mx-auto mb-4 size-16 rounded-full bg-blue-100 text-blue-700">
                 <Shield className="size-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Secure Process</h3>
+              <h3 className="mb-2 text-xl font-bold">Secure Process</h3>
               <p className="text-gray-600">
                 Verified listings and secure booking process for peace of mind.
               </p>
@@ -127,7 +127,7 @@ export default function Home() {
       </section>
 
       {/* Browse by Body Type */}
-      <section className="py-12 bg-gray-50">
+      <section className="bg-gray-50 py-12">
         <div className="container mx-auto px-5">
           <div className="flex-between mb-8">
             <h2 className="text-2xl font-bold">Browse by Body Type</h2>
@@ -138,23 +138,23 @@ export default function Home() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {bodyTypes.map((type) => (
               <Link
                 key={type.id}
                 href={`/cars?bodyType=${type.name}`}
-                className="relative group cursor-pointer"
+                className="group relative cursor-pointer"
               >
-                <div className="overflow-hidden relative rounded-lg flex justify-end h-28 mb-8">
+                <div className="relative mb-8 flex h-28 justify-end overflow-hidden rounded-lg">
                   <Image
                     src={type.image}
                     alt={type.name}
                     fill
-                    className="object-cover group-hover:scale-105 transition duration-300"
+                    className="object-cover transition duration-300 group-hover:scale-105"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg flex items-end">
-                  <h3 className="font-bold text-white text-xl pl-4 pb-2">
+                <div className="absolute inset-0 flex items-end rounded-lg bg-gradient-to-t from-black/70 to-transparent">
+                  <h3 className="pb-2 pl-4 text-xl font-bold text-white">
                     {type.name}
                   </h3>
                 </div>
@@ -167,11 +167,11 @@ export default function Home() {
       {/* FAQ */}
       <section className="py-12">
         <div className="container mx-auto px-5">
-          <h2 className="text-2xl font-bold text-center mb-8">
+          <h2 className="mb-8 text-center text-2xl font-bold">
             Frequently Asked Questions
           </h2>
 
-          <Accordion type="single" collapsible className="max-w-2xl mx-auto">
+          <Accordion type="single" collapsible className="mx-auto max-w-2xl">
             {faqItems.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger>{faq.question}</AccordionTrigger>
@@ -183,16 +183,16 @@ export default function Home() {
       </section>
 
       {/* Call to Action Button */}
-      <section className="py-16 dotted-background text-white">
+      <section className="dotted-background py-16 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
+          <h2 className="mb-4 text-3xl font-bold">
             Ready to Find Your Dream Car?
           </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+          <p className="mx-auto mb-8 max-w-2xl text-xl text-blue-100">
             Join thousands of satisfied customers who found their perfect
             vehicle through our platform.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/cars">View All Cars</Link>
             </Button>

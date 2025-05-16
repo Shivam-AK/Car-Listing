@@ -121,7 +121,7 @@
 
 @layer utilities {
   .gradient-title {
-    @apply bg-gradient-to-br from-blue-500 to-green-500 font-extrabold tracking-tighter pr-2 pb-2 text-transparent bg-clip-text;
+    @apply bg-gradient-to-br from-blue-500 to-green-500 bg-clip-text pr-2 pb-2 font-extrabold tracking-tighter text-transparent;
   }
   .flex-center {
     @apply flex items-center justify-center;

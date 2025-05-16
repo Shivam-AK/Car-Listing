@@ -45,9 +45,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import useFetch from "@/hooks/useFetch";
 import { formatCurrency } from "@/lib/helper";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -308,7 +308,7 @@ export default function CarList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <Button
           onClick={() => router.push("/admin/cars/create")}
           className="flex items-center"
@@ -319,11 +319,11 @@ export default function CarList() {
 
         <form onSubmit={handleSearchSubmit} className="flex w-full sm:w-auto">
           <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-gray-500" />
+            <Search className="absolute top-2.5 left-2.5 size-4 text-gray-500" />
             <Input
               type="search"
               placeholder="Search cars..."
-              className="pl-9 w-full sm:w-60"
+              className="w-full pl-9 sm:w-60"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -355,18 +355,18 @@ export default function CarList() {
                 {carsData.data.map((car) => (
                   <TableRow key={car.id}>
                     <TableCell>
-                      <div className="size-10 rounded-md overflow-hidden">
+                      <div className="size-10 overflow-hidden rounded-md">
                         {car.images && car.images.length > 0 ? (
                           <Image
                             src={car.images[0]}
                             alt={`${car.make} ${car.model}`}
                             height={40}
                             width={40}
-                            className="w-full h-full object-cover"
+                            className="h-full w-full object-cover"
                             priority
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <div className="flex h-full w-full items-center justify-center bg-gray-200">
                             <CarIcon className="size-6 text-gray-400" />
                           </div>
                         )}
@@ -382,12 +382,12 @@ export default function CarList() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="p-0 size-9"
+                        className="size-9 p-0"
                         onClick={() => handleToggleFeatured(car)}
                         disabled={updatingCar}
                       >
                         {car.featured ? (
-                          <Star className="size-5 text-amber-500 fill-amber-500" />
+                          <Star className="size-5 fill-amber-500 text-amber-500" />
                         ) : (
                           <StarOff className="size-5 text-gray-400" />
                         )}
@@ -474,12 +474,12 @@ export default function CarList() {
               </TableBody>
             </Table>
           ) : (
-            <div className="flex-col flex-center py-12 px-4 text-center">
-              <CarIcon className="size-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-1">
+            <div className="flex-center flex-col px-4 py-12 text-center">
+              <CarIcon className="mb-4 size-12 text-gray-300" />
+              <h3 className="mb-1 text-lg font-medium text-gray-900">
                 No Cars Found
               </h3>
-              <p className="text-gray-500 mb-4">
+              <p className="mb-4 text-gray-500">
                 {search
                   ? "No cars match your search criteria"
                   : "Your inventory is empty. Add cars to get started."}
@@ -530,16 +530,16 @@ export default function CarList() {
       </Dialog>
 
       <Sheet open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <SheetContent className="overflow-y-auto min-w-11/12 sm:min-w-xl md:min-w-2xl">
+        <SheetContent className="min-w-11/12 overflow-y-auto sm:min-w-xl md:min-w-2xl">
           <SheetHeader>
             <SheetTitle>Edit Car</SheetTitle>
             <SheetDescription>
               Enter the details of the car you want to Edit.
             </SheetDescription>
           </SheetHeader>
-          <div className="px-5 mb-5">
+          <div className="mb-5 px-5">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 {/* Make */}
                 <div className="space-y-2">
                   <Label htmlFor="make">Make</Label>
@@ -666,7 +666,7 @@ export default function CarList() {
                     </SelectContent>
                   </Select>
                   {errors.fuelType && (
-                    <p className="text-xs text-red-500 mt-2">
+                    <p className="mt-2 text-xs text-red-500">
                       {errors.fuelType.message}
                     </p>
                   )}
@@ -696,7 +696,7 @@ export default function CarList() {
                     </SelectContent>
                   </Select>
                   {errors.transmission && (
-                    <p className="text-xs text-red-500 mt-2">
+                    <p className="mt-2 text-xs text-red-500">
                       {errors.transmission.message}
                     </p>
                   )}
@@ -726,7 +726,7 @@ export default function CarList() {
                     </SelectContent>
                   </Select>
                   {errors.bodyType && (
-                    <p className="text-xs text-red-500 mt-2">
+                    <p className="mt-2 text-xs text-red-500">
                       {errors.bodyType.message}
                     </p>
                   )}
@@ -824,39 +824,39 @@ export default function CarList() {
                 <div
                   {...getMultiImageRootProps()}
                   className={cn(
-                    "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50 transition",
+                    "cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition hover:bg-gray-50",
                     imageError ? "border-red-500" : "border-gray-300"
                   )}
                 >
                   <input {...getMultiImageInputProps()} id="images" />
                   <div className="flex-center flex-col">
-                    <Upload className="size-12 text-gray-400 mb-2" />
+                    <Upload className="mb-2 size-12 text-gray-400" />
                     <p className="text-base text-gray-600">
                       Drag & drop or click to upload multiple images
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="mt-1 text-sm text-gray-500">
                       Supports: JPG, JPEG, PNG, WebP, (max 5MB each)
                     </p>
                   </div>
                 </div>
                 {imageError && (
-                  <p className="text-xs text-red-500 mt-2">{imageError}</p>
+                  <p className="mt-2 text-xs text-red-500">{imageError}</p>
                 )}
 
                 {/* Image Previews */}
                 {uploadedImages.length > 0 && (
                   <div className="mt-4">
-                    <h3 className="text-sm font-medium mb-2">
+                    <h3 className="mb-2 text-sm font-medium">
                       Uploaded Image {uploadedImages.length}
                     </h3>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                       {uploadedImages.map((image, index) => (
-                        <div key={index} className="relative group">
+                        <div key={index} className="group relative">
                           <img
                             src={image}
                             alt={`Car Image ${index}`}
-                            className="w-full h-28 object-cover rounded-md"
+                            className="h-28 w-full rounded-md object-cover"
                             height={50}
                             width={50}
                           />
@@ -864,7 +864,7 @@ export default function CarList() {
                             type="button"
                             size="icon"
                             variant="destructive"
-                            className="absolute top-1 right-1 size-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            className="absolute top-1 right-1 size-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                             onClick={() => removeImage(index)}
                           >
                             <X className="size-3" />
