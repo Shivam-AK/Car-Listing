@@ -39,6 +39,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --breakpoint-mb: 30rem;
 }
 
 :root {
@@ -131,6 +132,9 @@
   }
   .flex-around {
     @apply flex items-center justify-around;
+  }
+  .flex-end {
+    @apply flex items-center justify-end;
   }
 }
 

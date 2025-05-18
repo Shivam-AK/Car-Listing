@@ -27,65 +27,8 @@ export async function getDealershipInfo() {
       },
     });
 
-    // If no dealership exists, create a default one
     if (!dealership) {
-      dealership = await DB.dealershipInfo.create({
-        data: {
-          workingHours: {
-            create: [
-              {
-                dayOfWeek: "MONDAY",
-                openTime: "09:00",
-                closeTime: "18:00",
-                isOpen: true,
-              },
-              {
-                dayOfWeek: "TUESDAY",
-                openTime: "09:00",
-                closeTime: "18:00",
-                isOpen: true,
-              },
-              {
-                dayOfWeek: "WEDNESDAY",
-                openTime: "09:00",
-                closeTime: "18:00",
-                isOpen: true,
-              },
-              {
-                dayOfWeek: "THURSDAY",
-                openTime: "09:00",
-                closeTime: "18:00",
-                isOpen: true,
-              },
-              {
-                dayOfWeek: "FRIDAY",
-                openTime: "09:00",
-                closeTime: "18:00",
-                isOpen: true,
-              },
-              {
-                dayOfWeek: "SATURDAY",
-                openTime: "10:00",
-                closeTime: "16:00",
-                isOpen: true,
-              },
-              {
-                dayOfWeek: "SUNDAY",
-                openTime: "10:00",
-                closeTime: "16:00",
-                isOpen: false,
-              },
-            ],
-          },
-        },
-        include: {
-          workingHours: {
-            orderBy: {
-              dayOfWeek: "asc",
-            },
-          },
-        },
-      });
+      throw new Error("Please Setup Your Dealership First.");
     }
 
     return {
@@ -97,8 +40,7 @@ export async function getDealershipInfo() {
       },
     };
   } catch (error) {
-    console.error("Error fetching dealership info:", error.message);
-    throw new Error("Error fetching dealership info:", error.message);
+    throw new Error("Error fetching dealership info : " + error.message);
   }
 }
 
@@ -112,7 +54,9 @@ export async function saveWorkingHours(workingHours) {
       where: { clerkUserId: userId },
     });
 
-    if (!user || user.role !== "ADMIN") {
+    if (!user) throw new Error("User Not Found");
+
+    if (user.role !== "ADMIN" || user.role !== "DEALERSHIP") {
       throw new Error("Unauthorized: Admin access required");
     }
 
@@ -150,11 +94,55 @@ export async function saveWorkingHours(workingHours) {
       success: true,
     };
   } catch (error) {
-    console.error("Error saving working hours:", error.message);
-    throw new Error("Error saving working hours:", error.message);
+    throw new Error("Error saving working hours : " + error.message);
   }
 }
 
 export async function saveDealership(data) {
-  console.log(data);
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized User.");
+
+    // Check if user is admin
+    const user = await DB.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User Not Found");
+
+    if (user.role !== "ADMIN" || user.role !== "DEALERSHIP") {
+      throw new Error("Unauthorized: Admin access required");
+    }
+
+    // Get current dealership info
+    const dealership = await DB.dealershipInfo.findUnique({
+      where: { userId: user.id },
+    });
+
+    if (!dealership) {
+      await DB.dealershipInfo.create({
+        data: {
+          ...data,
+          userId: user.id,
+        },
+      });
+    } else {
+      await DB.dealershipInfo.update({
+        where: { userId: user.id },
+        data: {
+          ...data,
+          userId: user.id,
+        },
+      });
+    }
+
+    revalidatePath("/admin/settings");
+    revalidatePath("/"); // Homepage might display hours
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    throw new Error("Error Saving Dealership : " + error.message);
+  }
 }

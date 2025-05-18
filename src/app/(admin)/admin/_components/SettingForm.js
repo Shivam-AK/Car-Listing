@@ -81,7 +81,16 @@ export default function SettingForm() {
     fn: saveHours,
     data: saveResult,
     error: saveError,
+    setData: setSaveResult,
   } = useFetch(saveWorkingHours);
+
+  const {
+    data: dealershipResult,
+    loading: dealershipLoading,
+    fn: saveDealershipFn,
+    error: dealershipError,
+    setData: setDealershipResult,
+  } = useFetch(saveDealership);
 
   useEffect(() => {
     if (fetchHoursData?.success && fetchHoursData.data) {
@@ -128,8 +137,15 @@ export default function SettingForm() {
     if (saveResult?.success) {
       toast.success("Working Hours Saved Successfully.");
       fetchDealershipHours();
+      setSaveResult(undefined);
     }
-  }, [saveResult]);
+
+    if (dealershipResult?.success) {
+      toast.success("Dealership Saved Successfully.");
+      fetchDealershipHours();
+      setDealershipResult(undefined);
+    }
+  }, [saveResult, dealershipResult]);
 
   // Handle errors
   useEffect(() => {
@@ -140,7 +156,11 @@ export default function SettingForm() {
     if (saveError) {
       toast.error(`Failed to save working hours: ${saveError.message}`);
     }
-  }, [fetchHoursError, saveError]);
+
+    if (dealershipError) {
+      toast.error("Failed to Save Dealership.");
+    }
+  }, [fetchHoursError, saveError, dealershipError]);
 
   const handleWorkingHourChange = (index, field, value) => {
     const updatedHours = [...workingHours];
@@ -155,12 +175,6 @@ export default function SettingForm() {
     await saveHours(workingHours);
   };
 
-  const {
-    data: dealershipResult,
-    loading: dealershipLoading,
-    fn: saveDealershipFn,
-  } = useFetch(saveDealership);
-
   const onSubmit = async (data) => {
     await saveDealershipFn(data);
   };
@@ -174,7 +188,6 @@ export default function SettingForm() {
             Working Hours
           </TabsTrigger>
           <TabsTrigger value="dealership">
-            {" "}
             <Landmark className="mr-1.5 size-4" />
             Dealership
           </TabsTrigger>
@@ -192,13 +205,13 @@ export default function SettingForm() {
                 {DAYS.map((day, index) => (
                   <div
                     key={day.value}
-                    className="grid grid-cols-12 items-center gap-x-2 gap-y-3 rounded-lg px-4 py-3 shadow-sm hover:bg-slate-50"
+                    className="grid grid-cols-12 items-center gap-x-3 gap-y-3 rounded-lg px-4 py-3 shadow-sm hover:bg-slate-50"
                   >
-                    <div className="col-span-3 lg:col-span-3">
+                    <div className="col-span-6 lg:col-span-2">
                       <div className="font-medium">{day.label}</div>
                     </div>
 
-                    <div className="col-span-9 flex items-center lg:col-span-2">
+                    <div className="flex-end col-span-6 lg:col-span-2 lg:!justify-center">
                       <Checkbox
                         id={`is-open-${day.value}`}
                         checked={workingHours[index]?.isOpen}
@@ -216,9 +229,9 @@ export default function SettingForm() {
 
                     {workingHours[index]?.isOpen ? (
                       <>
-                        <div className="col-span-5 lg:col-span-3">
-                          <div className="flex items-center">
-                            <Clock className="mr-2 size-4 text-gray-400" />
+                        <div className="mb:col-span-6 col-span-12 lg:col-span-4">
+                          <div className="flex items-center gap-x-3">
+                            <Clock className="size-4 shrink-0 text-gray-700" />
                             <Input
                               type="time"
                               value={workingHours[index]?.openTime}
@@ -234,9 +247,8 @@ export default function SettingForm() {
                           </div>
                         </div>
 
-                        <div className="col-span-1 text-center">to</div>
-
-                        <div className="col-span-5 lg:col-span-3">
+                        <div className="mb:col-span-6 col-span-12 flex items-center gap-x-3 lg:col-span-4">
+                          <div>to</div>
                           <Input
                             type="time"
                             value={workingHours[index]?.closeTime}
