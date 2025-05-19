@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@arcjet/next": "^1.0.0-beta.7",
     "@clerk/nextjs": "^6.18.2",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.0.1",

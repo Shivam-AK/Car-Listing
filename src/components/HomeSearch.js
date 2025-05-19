@@ -1,8 +1,10 @@
 "use client";
 
+import { processImageSearch } from "@/actions/home";
+import useFetch from "@/hooks/useFetch";
 import { Camera, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -17,6 +19,13 @@ export default function HomeSearch() {
 
   const router = useRouter();
 
+  const {
+    loading: isProcessing,
+    fn: processImageFn,
+    data: processResult,
+    error: processError,
+  } = useFetch(processImageSearch);
+
   const handleTextSubmit = (e) => {
     e.preventDefault();
 
@@ -28,13 +37,40 @@ export default function HomeSearch() {
     router.push(`/cars?search=${encodeURIComponent(searchTerm)}`);
   };
 
-  const handleImageSearch = (e) => {
+  const handleImageSearch = async (e) => {
     e.preventDefault();
     if (!searchImage) {
       toast.error("Please upload an Image first.");
       return;
     }
+
+    await processImageFn(searchImage);
   };
+
+  useEffect(() => {
+    if (processResult?.success) {
+      const params = new URLSearchParams();
+
+      // Add extracted params to the search
+      if (processResult.data.make) params.set("make", processResult.data.make);
+      if (processResult.data.bodyType)
+        params.set("bodyType", processResult.data.bodyType);
+      if (processResult.data.color)
+        params.set("color", processResult.data.color);
+
+      // Redirect to search results
+      router.push(`/cars?${params.toString()}`);
+    }
+  }, [processResult, router]);
+
+  useEffect(() => {
+    if (processError) {
+      toast.error(
+        "Failed to analyze image: " + (processError.message || "Unknown error")
+      );
+    }
+    console.log(processError);
+  }, [processError]);
 
   const onDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -150,9 +186,13 @@ export default function HomeSearch() {
                 type="submit"
                 className="mt-4"
                 variant="outline"
-                disabled={isUploading}
+                disabled={isUploading || isProcessing}
               >
-                {isUploading ? "Uploading..." : "Search with this Image"}
+                {isUploading
+                  ? "Uploading..."
+                  : isProcessing
+                    ? "Analyzing image..."
+                    : "Search with this Image"}
               </Button>
             )}
           </form>
