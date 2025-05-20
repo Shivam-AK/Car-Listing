@@ -1,6 +1,8 @@
 "use server";
 
 import aj from "@/lib/arcjet";
+import { serializeCarData } from "@/lib/helper";
+import DB from "@/lib/prisma.db";
 import { request } from "@arcjet/next";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -99,5 +101,22 @@ export async function processImageSearch(file) {
     }
   } catch (error) {
     throw new Error("AI Search error : " + error.message);
+  }
+}
+
+export async function getFeaturedCars(limit = 3) {
+  try {
+    const cars = await DB.car.findMany({
+      where: {
+        featured: true,
+        status: "AVAILABLE",
+      },
+      take: limit,
+      orderBy: { createdAt: "desc" },
+    });
+
+    return cars.map(serializeCarData);
+  } catch (error) {
+    throw new Error("Error fetching featured cars : " + error.message);
   }
 }
