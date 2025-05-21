@@ -41,7 +41,7 @@ export async function getCarFilters() {
       _max: true,
     });
 
-    console.log(makes, bodyTypes, priceAggregations);
+    // console.log(makes, bodyTypes);
 
     return {
       success: true,
@@ -51,11 +51,11 @@ export async function getCarFilters() {
         fuelTypes: fuelTypes.map((item) => item.fuelType),
         transmissions: transmissions.map((item) => item.transmission),
         priceRange: {
-          min: priceAggregations._min.price
-            ? parseFloat(priceAggregations._min.price.toString())
+          min: priceAggregations._min?.price
+            ? parseFloat(priceAggregations._min?.price.toString())
             : 0,
-          max: priceAggregations._max.price
-            ? parseFloat(priceAggregations._max.price.toString())
+          max: priceAggregations._max?.price
+            ? parseFloat(priceAggregations._max?.price.toString())
             : 100000,
         },
       },
