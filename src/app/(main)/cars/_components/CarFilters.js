@@ -167,7 +167,7 @@ export default function CarFilters({ filters }) {
                 <SheetTitle>Filters.</SheetTitle>
               </SheetHeader>
 
-              <div className="py-6">
+              <div className="px-4">
                 <CarFilterControls
                   filters={filters}
                   currentFilters={currentFilters}
@@ -199,7 +199,6 @@ export default function CarFilters({ filters }) {
         value={sortBy}
         onValueChange={(value) => {
           setSortBy(value);
-          // applyFilters();
           setTimeout(() => applyFilters(), 0);
         }}
       >
@@ -223,8 +222,8 @@ export default function CarFilters({ filters }) {
       <div className="sticky top-24 hidden lg:block">
         <div className="overflow-hidden rounded-lg border bg-white">
           <div className="flex-between border-b bg-gray-50 p-4">
-            <h3 className="flex items-center font-medium">
-              <Sliders className="mr-2 size-4" />
+            <h3 className="flex items-center text-lg leading-8 font-medium">
+              <Sliders className="mr-2 size-5" />
               Filters
             </h3>
             {activeFilterCount > 0 && (

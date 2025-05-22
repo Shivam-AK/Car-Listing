@@ -1,5 +1,6 @@
 import { getCarFilters } from "@/actions/carListing";
 import CarFilters from "./_components/CarFilters";
+import CarListings from "./_components/CarListings";
 
 export default async function Cars() {
   const filters = await getCarFilters();
@@ -11,6 +12,11 @@ export default async function Cars() {
         {/* Filters Section */}
         <div className="w-full flex-shrink-0 lg:w-80">
           <CarFilters filters={filters.data} />
+        </div>
+
+        {/* Car Listing */}
+        <div className="flex-1">
+          <CarListings />
         </div>
       </div>
     </section>
