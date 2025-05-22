@@ -136,7 +136,7 @@ export async function getCars(
 
     let wishlist = new Set();
     if (dbUser) {
-      const savedCars = DB.userSavedCar.findMany({
+      const savedCars = await DB.userSavedCar.findMany({
         where: { userId: dbUser.id },
         select: { carId: true },
       });
@@ -227,5 +227,37 @@ export async function toggleSavedCar(carId) {
     };
   } catch (error) {
     throw new Error("Error toggling saved car : " + error.message);
+  }
+}
+
+export async function getSavedCars() {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized User.");
+
+    const user = await DB.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found.");
+
+    const savedCars = await DB.userSavedCar.findMany({
+      where: { userId: user.id },
+      include: {
+        car: true,
+      },
+      orderBy: { savedAt: "desc" },
+    });
+
+    const serializedCars = savedCars.map((saved) =>
+      serializeCarData(saved.car)
+    );
+
+    return {
+      success: true,
+      data: serializedCars,
+    };
+  } catch (error) {
+    console.error("Error fetching saved cars : " + error.message);
   }
 }

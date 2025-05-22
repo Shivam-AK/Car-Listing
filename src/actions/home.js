@@ -4,6 +4,7 @@ import aj from "@/lib/arcjet";
 import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
 import { request } from "@arcjet/next";
+import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Function to convert File to base64
@@ -106,6 +107,25 @@ export async function processImageSearch(file) {
 
 export async function getFeaturedCars(limit = 3) {
   try {
+    const { userId } = await auth();
+    let dbUser = null;
+
+    if (userId) {
+      dbUser = await DB.user.findUnique({
+        where: { clerkUserId: userId },
+      });
+    }
+
+    let wishlist = new Set();
+    if (dbUser) {
+      const savedCars = await DB.userSavedCar.findMany({
+        where: { userId: dbUser.id },
+        select: { carId: true },
+      });
+
+      wishlist = new Set(savedCars.map((saved) => saved.carId));
+    }
+
     const cars = await DB.car.findMany({
       where: {
         featured: true,
@@ -115,7 +135,11 @@ export async function getFeaturedCars(limit = 3) {
       orderBy: { createdAt: "desc" },
     });
 
-    return cars.map(serializeCarData);
+    const serializedCars = cars.map((car) =>
+      serializeCarData(car, wishlist.has(car.id))
+    );
+
+    return serializedCars;
   } catch (error) {
     throw new Error("Error fetching featured cars : " + error.message);
   }
