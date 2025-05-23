@@ -261,3 +261,95 @@ export async function getSavedCars() {
     console.error("Error fetching saved cars : " + error.message);
   }
 }
+
+export async function getCarById(carId) {
+  try {
+    const { userId } = await auth();
+    let dbUser = null;
+
+    if (userId) {
+      dbUser = await DB.user.findUnique({
+        where: { clerkUserId: userId },
+      });
+    }
+
+    const car = await DB.car.findUnique({
+      where: { id: carId },
+    });
+
+    if (!car) {
+      return {
+        success: false,
+        error: "Car Not Found.",
+      };
+    }
+
+    let wishlist = false;
+    let userTestDrive = null;
+
+    if (dbUser) {
+      const savedCar = await DB.userSavedCar.findUnique({
+        where: {
+          userId_carId: {
+            userId: dbUser.id,
+            carId,
+          },
+        },
+      });
+
+      wishlist = !!savedCar;
+
+      // const existingTestDrive = await DB.testDriveBooking.findUnique({
+      //   where: {
+      //     userId: dbUser.id,
+      //     carId,
+      //     status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+      //   },
+      //   orderBy: {
+      //     createdAt: "desc",
+      //   },
+      // });
+
+      // if (existingTestDrive) {
+      //   userTestDrive = {
+      //     id: existingTestDrive.id,
+      //     status: existingTestDrive.status,
+      //     bookingDate: existingTestDrive.bookingDate.toISOString(),
+      //   };
+      // }
+    }
+
+    const dealership = await DB.dealershipInfo.findUnique({
+      where: {
+        id: car.dealershipInfoId,
+      },
+      include: {
+        workingHours: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        ...serializeCarData(car, wishlist),
+        testDriveInfo: {
+          userTestDrive,
+          dealership: dealership
+            ? {
+                ...dealership,
+                createdAt: dealership.createdAt.toISOString(),
+                updatedAt: dealership.updatedAt.toISOString(),
+                workingHours: dealership.workingHours.map((hour) => ({
+                  ...hour,
+                  createdAt: hour.createdAt.toISOString(),
+                  updatedAt: hour.updatedAt.toISOString(),
+                })),
+              }
+            : null,
+        },
+      },
+    };
+  } catch (error) {
+    throw new Error("Error Fetching Car Details : " + error.message);
+  }
+}
