@@ -1,6 +1,7 @@
 "use client";
 
 import { toggleSavedCar } from "@/actions/carListing";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +17,18 @@ import useFetch from "@/hooks/useFetch";
 import { formatCurrency } from "@/lib/helper";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
-import { Car, Currency, Fuel, Gauge, Heart, Share2 } from "lucide-react";
+import { format } from "date-fns";
+import {
+  Calendar,
+  Car,
+  Currency,
+  Fuel,
+  Gauge,
+  Heart,
+  LocateFixed,
+  MessageSquare,
+  Share2,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -97,8 +109,17 @@ export default function CarDetails({ car, testDriveInfo }) {
     ).toFixed(2);
   };
 
+  const handleBookTestDrive = () => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to book a test drive");
+      router.push("/sign-in");
+      return;
+    }
+    router.push(`/test-drive/${car.id}`);
+  };
+
   return (
-    <div>
+    <>
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Image Gallery */}
         <div className="w-full lg:w-7/12">
@@ -230,8 +251,249 @@ export default function CarDetails({ car, testDriveInfo }) {
               <EmiCalculator price={car.price} interest={4.5} />
             </DialogContent>
           </Dialog>
+
+          <Card className="my-6">
+            <CardContent>
+              <div className="mb-2 flex items-center gap-2 text-lg font-medium">
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+                <h3>Have Questions?</h3>
+              </div>
+              <p className="mb-3 text-sm text-gray-600">
+                Our representatives are available to answer all your queries
+                about this vehicle.
+              </p>
+              <a href="mailto:help@vehiql.in">
+                <Button variant="outline" className="w-full">
+                  Request Info
+                </Button>
+              </a>
+            </CardContent>
+          </Card>
+
+          {(car.status === "SOLD" || car.status === "UNAVAILABLE") && (
+            <Alert variant="destructive">
+              <AlertTitle className="capitalize">
+                This car is {car.status.toLowerCase()}
+              </AlertTitle>
+              <AlertDescription>Please check again later.</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Book Test Drive Button */}
+          {car.status !== "SOLD" && car.status !== "UNAVAILABLE" && (
+            <Button
+              className="w-full py-6 text-lg"
+              onClick={handleBookTestDrive}
+              disabled={testDriveInfo.userTestDrive}
+            >
+              <Calendar className="mr-2 size-5" />
+              {testDriveInfo.userTestDrive
+                ? `Booked for ${format(
+                    new Date(testDriveInfo.userTestDrive.bookingDate),
+                    "EEEE, MMMM d, yyyy"
+                  )}`
+                : "Book Test Drive"}
+            </Button>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Details & Features Section */}
+      <Card className="my-6 py-5">
+        <CardContent className="grid grid-cols-1 gap-5 px-5 md:grid-cols-2">
+          <Card className="py-5">
+            <CardContent className="px-5">
+              <h3 className="mb-5 text-2xl font-bold">Description</h3>
+              <p className="whitespace-pre-line text-gray-700">
+                {car.description}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="py-5">
+            <CardContent className="px-5">
+              <h3 className="mb-6 text-2xl font-bold">Features</h3>
+              <ul className="my-6 ml-6 list-disc">
+                <li className="mt-2">
+                  <strong className="font-semibold">{car.transmission}</strong>{" "}
+                  Transmission
+                </li>
+                <li className="mt-2">
+                  <strong className="font-semibold">{car.fuelType}</strong>{" "}
+                  Engine
+                </li>
+                <li className="mt-2">
+                  <strong className="font-semibold">{car.bodyType}</strong> Body
+                  Style
+                </li>
+                {car.seats && (
+                  <li className="mt-2">
+                    <strong className="font-semibold">{car.seats}</strong> Seats
+                  </li>
+                )}
+                <li className="mt-2">
+                  <strong className="font-semibold">{car.color}</strong>{" "}
+                  Exterior
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </CardContent>
+      </Card>
+
+      {/* Specifications Section */}
+      <Card className="my-6 py-5">
+        <CardContent className="px-5">
+          <h2 className="mb-6 text-2xl font-bold">Specifications</h2>
+          <div className="rounded-lg bg-gray-50 p-6">
+            <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Make</span>
+                <span className="font-medium">{car.make}</span>
+              </div>
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Model</span>
+                <span className="font-medium">{car.model}</span>
+              </div>
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Year</span>
+                <span className="font-medium">{car.year}</span>
+              </div>
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Body Type</span>
+                <span className="font-medium">{car.bodyType}</span>
+              </div>
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Fuel Type</span>
+                <span className="font-medium">{car.fuelType}</span>
+              </div>
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Transmission</span>
+                <span className="font-medium">{car.transmission}</span>
+              </div>
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Mileage</span>
+                <span className="font-medium">
+                  {car.mileage.toLocaleString()} miles
+                </span>
+              </div>
+              <div className="flex justify-between border-b py-2">
+                <span className="text-gray-600">Color</span>
+                <span className="font-medium">{car.color}</span>
+              </div>
+              {car.seats && (
+                <div className="flex justify-between border-b py-2">
+                  <span className="text-gray-600">Seats</span>
+                  <span className="font-medium">{car.seats}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Dealership Location Section */}
+      <Card className="my-6 py-5">
+        <CardContent className="px-5">
+          <h2 className="mb-6 text-2xl font-bold">Dealership Location</h2>
+          <div className="rounded-lg bg-gray-50 p-6">
+            <div className="flex flex-col justify-between gap-6 md:flex-row">
+              {/* Dealership Name and Address */}
+              <div className="flex items-start gap-3">
+                <LocateFixed className="mt-1 h-5 w-5 flex-shrink-0 text-blue-600" />
+                <div>
+                  <h4 className="font-medium">Vehiql Motors</h4>
+                  <p className="text-gray-600">
+                    Dealership Name:{" "}
+                    <span className="font-semibold">
+                      {testDriveInfo.dealership?.name || "Not Available"}
+                    </span>
+                  </p>
+                  <p className="text-gray-600">
+                    Address:{" "}
+                    <span className="font-semibold">
+                      {testDriveInfo.dealership?.address || "Not Available"}
+                    </span>
+                  </p>
+                  <p className="mt-1 text-gray-600">
+                    Phone:{" "}
+                    <span className="font-semibold">
+                      {testDriveInfo.dealership?.phone || "Not Available"}
+                    </span>
+                  </p>
+                  <p className="text-gray-600">
+                    Email:{" "}
+                    <span className="font-semibold">
+                      {testDriveInfo.dealership?.email || "Not Available"}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Working Hours */}
+              <div className="md:w-1/2 lg:w-1/3">
+                <h4 className="mb-2 font-medium">Working Hours</h4>
+                <div className="space-y-2">
+                  {testDriveInfo.dealership?.workingHours
+                    ? testDriveInfo.dealership.workingHours
+                        .sort((a, b) => {
+                          const days = [
+                            "MONDAY",
+                            "TUESDAY",
+                            "WEDNESDAY",
+                            "THURSDAY",
+                            "FRIDAY",
+                            "SATURDAY",
+                            "SUNDAY",
+                          ];
+                          return (
+                            days.indexOf(a.dayOfWeek) -
+                            days.indexOf(b.dayOfWeek)
+                          );
+                        })
+                        .map((day) => (
+                          <div
+                            key={day.dayOfWeek}
+                            className="flex justify-between text-sm"
+                          >
+                            <span className="text-gray-600">
+                              {day.dayOfWeek.charAt(0) +
+                                day.dayOfWeek.slice(1).toLowerCase()}
+                            </span>
+                            <span>
+                              {day.isOpen
+                                ? `${day.openTime} - ${day.closeTime}`
+                                : "Closed"}
+                            </span>
+                            {console.log(testDriveInfo.dealership.workingHours)}
+                          </div>
+                        ))
+                    : // Default hours if none provided
+                      [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday",
+                        "Sunday",
+                      ].map((day, index) => (
+                        <div key={day} className="flex justify-between text-sm">
+                          <span className="text-gray-600">{day}</span>
+                          <span>
+                            {index < 5
+                              ? "9:00 - 18:00"
+                              : index === 5
+                                ? "10:00 - 16:00"
+                                : "Closed"}
+                          </span>
+                        </div>
+                      ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }
