@@ -286,6 +286,7 @@ export async function getCarById(carId) {
 
     let wishlist = false;
     let userTestDrive = null;
+    let existingBookings = null;
 
     if (dbUser) {
       const savedCar = await DB.userSavedCar.findUnique({
@@ -299,24 +300,36 @@ export async function getCarById(carId) {
 
       wishlist = !!savedCar;
 
-      // const existingTestDrive = await DB.testDriveBooking.findUnique({
-      //   where: {
-      //     userId: dbUser.id,
-      //     carId,
-      //     status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
-      //   },
-      //   orderBy: {
-      //     createdAt: "desc",
-      //   },
-      // });
+      const existingTestDrive = await DB.testDriveBooking.findFirst({
+        where: {
+          userId: dbUser.id,
+          carId,
+          status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
 
-      // if (existingTestDrive) {
-      //   userTestDrive = {
-      //     id: existingTestDrive.id,
-      //     status: existingTestDrive.status,
-      //     bookingDate: existingTestDrive.bookingDate.toISOString(),
-      //   };
-      // }
+      if (existingTestDrive) {
+        userTestDrive = {
+          id: existingTestDrive.id,
+          status: existingTestDrive.status,
+          bookingDate: existingTestDrive.bookingDate.toISOString(),
+        };
+      }
+
+      const booking = await DB.testDriveBooking.findMany({
+        where: {
+          carId,
+          status: { in: ["PENDING", "CONFIRMED"] },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      if (booking) existingBookings = booking;
     }
 
     const dealership = await DB.dealershipInfo.findUnique({
@@ -334,6 +347,7 @@ export async function getCarById(carId) {
         ...serializeCarData(car, wishlist),
         testDriveInfo: {
           userTestDrive,
+          existingBookings,
           dealership: dealership
             ? {
                 ...dealership,

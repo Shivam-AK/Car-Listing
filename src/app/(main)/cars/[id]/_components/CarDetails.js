@@ -225,8 +225,8 @@ export default function CarDetails({ car, testDriveInfo }) {
 
           <Dialog>
             <DialogTrigger className="w-full text-start">
-              <Card className="pt-5">
-                <CardContent>
+              <Card className="mb:py-5 py-3.5">
+                <CardContent className="mb:px-5 px-3.5">
                   <div className="mb-2 flex items-center gap-2 text-lg font-medium">
                     <Currency className="size-5 text-blue-600" />
                     <h3>EMI Calculator</h3>
@@ -252,8 +252,8 @@ export default function CarDetails({ car, testDriveInfo }) {
             </DialogContent>
           </Dialog>
 
-          <Card className="my-6">
-            <CardContent>
+          <Card className="mb:py-5 my-6 py-3.5">
+            <CardContent className="mb:px-5 px-3.5">
               <div className="mb-2 flex items-center gap-2 text-lg font-medium">
                 <MessageSquare className="h-5 w-5 text-blue-600" />
                 <h3>Have Questions?</h3>
@@ -282,7 +282,7 @@ export default function CarDetails({ car, testDriveInfo }) {
           {/* Book Test Drive Button */}
           {car.status !== "SOLD" && car.status !== "UNAVAILABLE" && (
             <Button
-              className="w-full py-6 text-lg"
+              className="h-auto w-full p-3 text-lg whitespace-normal"
               onClick={handleBookTestDrive}
               disabled={testDriveInfo.userTestDrive}
             >
@@ -299,18 +299,18 @@ export default function CarDetails({ car, testDriveInfo }) {
       </div>
 
       {/* Details & Features Section */}
-      <Card className="my-6 py-5">
-        <CardContent className="grid grid-cols-1 gap-5 px-5 md:grid-cols-2">
-          <Card className="py-5">
-            <CardContent className="px-5">
+      <Card className="mb:py-5 my-6 py-3.5">
+        <CardContent className="mb:px-5 grid grid-cols-1 gap-5 px-3.5 md:grid-cols-2">
+          <Card className="mb:py-5 py-3.5">
+            <CardContent className="mb:px-5 px-3.5">
               <h3 className="mb-5 text-2xl font-bold">Description</h3>
               <p className="whitespace-pre-line text-gray-700">
                 {car.description}
               </p>
             </CardContent>
           </Card>
-          <Card className="py-5">
-            <CardContent className="px-5">
+          <Card className="mb:py-5 py-3.5">
+            <CardContent className="mb:px-5 px-3.5">
               <h3 className="mb-6 text-2xl font-bold">Features</h3>
               <ul className="my-6 ml-6 list-disc">
                 <li className="mt-2">
@@ -341,10 +341,10 @@ export default function CarDetails({ car, testDriveInfo }) {
       </Card>
 
       {/* Specifications Section */}
-      <Card className="my-6 py-5">
-        <CardContent className="px-5">
+      <Card className="mb:py-5 my-6 py-3.5">
+        <CardContent className="mb:px-5 px-3.5">
           <h2 className="mb-6 text-2xl font-bold">Specifications</h2>
-          <div className="rounded-lg bg-gray-50 p-6">
+          <div className="mb:p-5 rounded-lg bg-gray-50 p-3.5">
             <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
               <div className="flex justify-between border-b py-2">
                 <span className="text-gray-600">Make</span>
@@ -392,26 +392,20 @@ export default function CarDetails({ car, testDriveInfo }) {
       </Card>
 
       {/* Dealership Location Section */}
-      <Card className="my-6 py-5">
-        <CardContent className="px-5">
+      <Card className="mb:py-5 my-6 py-3.5">
+        <CardContent className="mb:px-5 px-3.5">
           <h2 className="mb-6 text-2xl font-bold">Dealership Location</h2>
-          <div className="rounded-lg bg-gray-50 p-6">
-            <div className="flex flex-col justify-between gap-6 md:flex-row">
+          <div className="mb:p-5 rounded-lg bg-gray-50 p-3.5">
+            <div className="flex flex-col justify-between gap-8 md:flex-row">
               {/* Dealership Name and Address */}
-              <div className="flex items-start gap-3">
+              <div className="flex flex-col items-start gap-3 sm:flex-row">
                 <LocateFixed className="mt-1 h-5 w-5 flex-shrink-0 text-blue-600" />
-                <div>
+                <div className="space-y-1">
                   <h4 className="font-medium">Vehiql Motors</h4>
                   <p className="text-gray-600">
                     Dealership Name:{" "}
                     <span className="font-semibold">
                       {testDriveInfo.dealership?.name || "Not Available"}
-                    </span>
-                  </p>
-                  <p className="text-gray-600">
-                    Address:{" "}
-                    <span className="font-semibold">
-                      {testDriveInfo.dealership?.address || "Not Available"}
                     </span>
                   </p>
                   <p className="mt-1 text-gray-600">
@@ -424,6 +418,12 @@ export default function CarDetails({ car, testDriveInfo }) {
                     Email:{" "}
                     <span className="font-semibold">
                       {testDriveInfo.dealership?.email || "Not Available"}
+                    </span>
+                  </p>
+                  <p className="text-gray-600">
+                    Address:{" "}
+                    <span className="font-semibold">
+                      {testDriveInfo.dealership?.address || "Not Available"}
                     </span>
                   </p>
                 </div>
@@ -464,7 +464,6 @@ export default function CarDetails({ car, testDriveInfo }) {
                                 ? `${day.openTime} - ${day.closeTime}`
                                 : "Closed"}
                             </span>
-                            {console.log(testDriveInfo.dealership.workingHours)}
                           </div>
                         ))
                     : // Default hours if none provided
