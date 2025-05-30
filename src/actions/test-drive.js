@@ -128,7 +128,13 @@ export async function cancelTestDrive(bookingId) {
 
     if (!booking) throw new Error("Booking Not Found.");
 
-    if (booking.userId !== user.id || user.role !== "ADMIN") {
+    if (
+      !(
+        booking.userId === user.id ||
+        user.role === "DEALERSHIP" ||
+        user.role === "ADMIN"
+      )
+    ) {
       throw new Error("Unauthorized to Cancel this Booking.");
     }
 
