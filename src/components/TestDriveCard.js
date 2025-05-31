@@ -60,16 +60,16 @@ export default function TestDriveCard({
     <>
       <Card
         className={cn(
-          "overflow-hidden py-0 md:py-5",
+          "overflow-hidden py-0 sm:py-5",
           isPast && "opacity-90 transition-opacity hover:opacity-100"
         )}
       >
-        <CardContent className="flex flex-col px-0 md:flex-row md:px-5">
+        <CardContent className="flex flex-col px-0 sm:flex-row sm:px-5">
           {/* Car Image - Left */}
           <div
             className={cn(
-              "relative aspect-video md:h-auto md:w-1/4",
-              isPast && "md:w-1/2"
+              "relative aspect-video sm:h-auto sm:w-1/4",
+              isPast && "sm:w-1/2"
             )}
           >
             {booking.car.images && booking.car.images.length > 0 ? (
@@ -77,7 +77,7 @@ export default function TestDriveCard({
                 src={booking.car.images[0]}
                 alt={`${booking.car.make} ${booking.car.model}`}
                 fill
-                className="object-cover md:rounded-lg"
+                className="object-cover sm:rounded-lg"
               />
             ) : (
               <div className="flex-center bg-gray-200">
@@ -86,13 +86,15 @@ export default function TestDriveCard({
             )}
           </div>
 
-          <div className="my-auto p-4 md:w-1/2 md:flex-1 md:p-0 md:pl-4">
-            <div className="mb-2">{getStatusBadge(booking.status)}</div>
+          <div className="my-auto p-4 sm:w-1/2 sm:flex-1 sm:p-0 sm:pl-4">
+            <div className="flex-between mb-2">
+              {getStatusBadge(booking.status)}
+              {renderStatusSelector()}
+            </div>
 
             <h3 className="mb-1 text-lg font-bold">
               {booking.car.year} {booking.car.make} {booking.car.model}{" "}
             </h3>
-            {renderStatusSelector()}
 
             <div className="my-2 space-y-2">
               <div className="flex items-center text-gray-600">
@@ -116,12 +118,14 @@ export default function TestDriveCard({
 
           {/* Action Buttons - Right */}
           {showActions && (
-            <div className="border-t p-4 md:ml-3 md:flex md:w-1/4 md:flex-col md:items-center md:justify-center md:space-y-2 md:border-t-0 md:border-l md:p-0 md:pl-4">
+            <div className="border-t p-4 sm:ml-3 sm:flex sm:w-1/4 sm:flex-col sm:items-center sm:justify-center sm:border-t-0 sm:border-l sm:p-0 sm:pl-4">
               {/* Show notes if any */}
               {booking.notes && (
-                <div className="w-full rounded bg-gray-50 p-2 text-sm">
-                  <p className="font-medium">Notes:</p>
-                  <p className="text-gray-600">{booking.notes}</p>
+                <div className="size-full rounded bg-gray-50 p-2 text-sm">
+                  <p className="text-gray-600">
+                    <span className="font-medium text-black">Notes: </span>
+                    {booking.notes}
+                  </p>
                 </div>
               )}
 
