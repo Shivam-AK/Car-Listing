@@ -150,3 +150,105 @@ export async function updateTestDriveStatus(bookingId, newStatus) {
     throw new Error("Error Updating Test Drive Status : " + error.message);
   }
 }
+
+export async function getDashboardData() {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized User.");
+
+    const user = await DB.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user || user.role !== "ADMIN") {
+      throw new Error("Unauthorized: Admin access required.");
+    }
+
+    const [cars, testDrives] = await Promise.all([
+      // Get all cars with minimal fields
+      DB.car.findMany({
+        select: {
+          id: true,
+          status: true,
+          featured: true,
+        },
+      }),
+
+      // Get all test drives with minimal fields
+      DB.testDriveBooking.findMany({
+        select: {
+          id: true,
+          status: true,
+          carId: true,
+        },
+      }),
+    ]);
+
+    // Total car statistics
+    const totalCars = cars.length;
+    const availableCars = cars.filter(
+      (car) => car.status === "AVAILABLE"
+    ).length;
+    const unavailableCars = cars.filter(
+      (car) => car.status === "UNAVAILABLE"
+    ).length;
+    const soldCars = cars.filter((car) => car.status === "SOLD").length;
+    const featuredCars = cars.filter((car) => car.featured === true).length;
+
+    // Total Test Drive Booking statistics
+    const totalTestDrives = testDrives.length;
+    const pendingTestDrives = testDrives.filter(
+      (booking) => booking.status === "PENDING"
+    ).length;
+    const confirmedTestDrives = testDrives.filter(
+      (booking) => booking.status === "CONFIRMED"
+    ).length;
+    const completedTestDrives = testDrives.filter(
+      (booking) => booking.status === "COMPLETED"
+    ).length;
+    const cancelledTestDrives = testDrives.filter(
+      (booking) => booking.status === "CANCELLED"
+    ).length;
+    const noShowTestDrives = testDrives.filter(
+      (booking) => booking.status === "NO_SHOW"
+    ).length;
+
+    const completedTestDriveCarIds = testDrives
+      .filter((booking) => booking.status === "COMPLETED")
+      .map((booking) => booking.carId);
+
+    const soldCarsAfterTestDrive = cars.filter(
+      (car) =>
+        car.status === "SOLD" && completedTestDriveCarIds.includes(car.id)
+    ).length;
+
+    const conversionRate =
+      completedTestDrives > 0
+        ? (soldCarsAfterTestDrive / completedTestDrives) * 100
+        : 0;
+
+    return {
+      success: true,
+      data: {
+        cars: {
+          total: totalCars,
+          available: availableCars,
+          sold: soldCars,
+          unavailable: unavailableCars,
+          featured: featuredCars,
+        },
+        testDrives: {
+          total: totalTestDrives,
+          pending: pendingTestDrives,
+          confirmed: confirmedTestDrives,
+          completed: completedTestDrives,
+          cancelled: cancelledTestDrives,
+          noShow: noShowTestDrives,
+          conversionRate: parseFloat(conversionRate.toFixed(2)),
+        },
+      },
+    };
+  } catch (error) {
+    throw new Error("Error Fetching Dashboard Data : " + error.message);
+  }
+}
