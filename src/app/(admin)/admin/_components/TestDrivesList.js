@@ -3,6 +3,7 @@
 import { getAdminTestDrives, updateTestDriveStatus } from "@/actions/admin";
 import { cancelTestDrive } from "@/actions/test-drive";
 import TestDriveCard from "@/components/TestDriveCard";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useFetch from "@/hooks/useFetch";
-import { CalendarRange, Loader2, Search } from "lucide-react";
+import { AlertCircle, CalendarRange, Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -144,6 +145,26 @@ export default function TestDrivesList() {
           {fetchingTestDrives && !testDrivesData ? (
             <div className="flex-center py-12">
               <Loader2 className="size-8 animate-spin text-gray-400" />
+            </div>
+          ) : testDrivesError ? (
+            <Alert variant="destructive">
+              <AlertCircle className="size-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>
+                Failed to load test drives. Please try again.
+              </AlertDescription>
+            </Alert>
+          ) : testDrivesData?.data?.length === 0 ? (
+            <div className="flex-center flex-col px-4 py-12 text-center">
+              <CalendarRange className="mb-4 size-12 text-gray-300" />
+              <h3 className="mb-1 text-lg font-medium text-gray-900">
+                No test drives found
+              </h3>
+              <p className="mb-4 text-gray-500">
+                {statusFilter || search
+                  ? "No test drives match your search criteria"
+                  : "There are no test drive bookings yet."}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
