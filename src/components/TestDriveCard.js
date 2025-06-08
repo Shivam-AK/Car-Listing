@@ -45,6 +45,7 @@ export default function TestDriveCard({
   isPast = false,
   isAdmin = false,
   isCancelling = false,
+  sidebarState = "collapsed",
   renderStatusSelector = () => null,
 }) {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -60,16 +61,27 @@ export default function TestDriveCard({
     <>
       <Card
         className={cn(
-          "overflow-hidden py-0 sm:py-5",
+          "overflow-hidden py-0",
+          sidebarState === "collapsed" ? "md:py-3.5" : "lg:py-3.5",
           isPast && "opacity-90 transition-opacity hover:opacity-100"
         )}
       >
-        <CardContent className="flex flex-col px-0 sm:flex-row sm:px-5">
+        <CardContent
+          className={cn(
+            "flex flex-col px-0",
+            sidebarState === "collapsed"
+              ? "md:flex-row md:px-3.5"
+              : "lg:flex-row lg:px-3.5"
+          )}
+        >
           {/* Car Image - Left */}
           <div
             className={cn(
-              "relative aspect-video sm:h-auto sm:w-1/4",
-              isPast && "sm:w-1/2"
+              "relative aspect-video",
+              sidebarState === "collapsed"
+                ? "md:h-auto md:w-1/4"
+                : "lg:h-auto lg:w-1/4",
+              isPast && "md:w-1/2"
             )}
           >
             {booking.car.images && booking.car.images.length > 0 ? (
@@ -77,7 +89,12 @@ export default function TestDriveCard({
                 src={booking.car.images[0]}
                 alt={`${booking.car.make} ${booking.car.model}`}
                 fill
-                className="object-cover sm:rounded-lg"
+                className={cn(
+                  "object-cover",
+                  sidebarState === "collapsed"
+                    ? "md:rounded-lg"
+                    : "lg:rounded-lg"
+                )}
               />
             ) : (
               <div className="flex-center bg-gray-200">
@@ -86,7 +103,14 @@ export default function TestDriveCard({
             )}
           </div>
 
-          <div className="my-auto p-4 sm:w-1/2 sm:flex-1 sm:p-0 sm:pl-4">
+          <div
+            className={cn(
+              "my-auto p-3.5",
+              sidebarState === "collapsed"
+                ? "md:w-1/2 md:flex-1 md:p-0 md:pl-3.5"
+                : "lg:w-1/2 lg:flex-1 lg:p-0 lg:pl-3.5"
+            )}
+          >
             <div className="flex-between mb-2">
               {getStatusBadge(booking.status)}
               {renderStatusSelector()}
@@ -96,7 +120,7 @@ export default function TestDriveCard({
               {booking.car.year} {booking.car.make} {booking.car.model}{" "}
             </h3>
 
-            <div className="my-2 space-y-2">
+            <div className="mt-2 space-y-2">
               <div className="flex items-center text-gray-600">
                 <Calendar className="mr-2 size-4" />
                 {format(new Date(booking.bookingDate), "EEEE, MMMM d, yyyy")}
@@ -118,10 +142,17 @@ export default function TestDriveCard({
 
           {/* Action Buttons - Right */}
           {showActions && (
-            <div className="border-t p-4 sm:ml-3 sm:flex sm:w-1/4 sm:flex-col sm:items-center sm:justify-center sm:border-t-0 sm:border-l sm:p-0 sm:pl-4">
+            <div
+              className={cn(
+                "grid grid-rows-1 gap-y-2 border-t p-3.5",
+                sidebarState === "collapsed"
+                  ? "md:ml-3 md:w-1/4 md:border-t-0 md:border-l md:p-0 md:pl-3.5"
+                  : "lg:ml-3 lg:w-1/4 lg:border-t-0 lg:border-l lg:p-0 lg:pl-3.5"
+              )}
+            >
               {/* Show notes if any */}
               {booking.notes && (
-                <div className="size-full rounded bg-gray-50 p-2 text-sm">
+                <div className="rounded bg-gray-50 p-2 text-sm">
                   <p className="text-gray-600">
                     <span className="font-medium text-black">Notes: </span>
                     {booking.notes}
@@ -129,12 +160,7 @@ export default function TestDriveCard({
                 </div>
               )}
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="my-2 w-full"
-                asChild
-              >
+              <Button variant="outline" size="sm" className="w-full" asChild>
                 <Link href={`/cars/${booking.carId}`} className="flex-center">
                   View Car
                   <ArrowRight className="ml-2 size-4" />

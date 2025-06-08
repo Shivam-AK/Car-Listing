@@ -15,7 +15,7 @@ export function MainContent({ children }) {
   return (
     <main
       className={cn(
-        "w-full",
+        "w-full transition-[width] duration-200 ease-linear",
         state === "collapsed"
           ? "md:w-[calc(100%-3rem)]"
           : "md:w-[calc(100%-16rem)]"

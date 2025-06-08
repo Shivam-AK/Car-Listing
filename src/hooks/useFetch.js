@@ -9,6 +9,7 @@ export default function useFetch(cb) {
   const fn = async (...args) => {
     setLoading(true);
     setError(null);
+    setData(undefined);
 
     try {
       const response = await cb(...args);
