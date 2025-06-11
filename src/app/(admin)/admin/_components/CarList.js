@@ -295,7 +295,7 @@ export default function CarList() {
     };
 
     await updateCarFn({
-      carId: carToAction.id,
+      carId: carToAction,
       carData,
       images: uploadedImages,
     });
@@ -393,7 +393,31 @@ export default function CarList() {
                         )}
                       </Button>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="space-x-3 text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setValue("make", car.make);
+                          setValue("model", car.model);
+                          setValue("year", car.year?.toString());
+                          setValue("price", car.price?.toString());
+                          setValue("mileage", car.mileage?.toString());
+                          setValue("color", car.color);
+                          setValue("fuelType", car.fuelType);
+                          setValue("transmission", car.transmission);
+                          setValue("bodyType", car.bodyType);
+                          setValue("seats", car.seats?.toString());
+                          setValue("status", car.status);
+                          setValue("description", car.description);
+                          setValue("featured", car.featured);
+                          setUploadedImages(car.images);
+                          setCarToAction(car.id);
+                          setEditDialogOpen(true);
+                        }}
+                      >
+                        <SquarePen className="size-4" />
+                      </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button className="size-8" variant="ghost" size="sm">
@@ -408,29 +432,6 @@ export default function CarList() {
                               View
                             </DropdownMenuItem>
                           </Link>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setValue("make", car.make);
-                              setValue("model", car.model);
-                              setValue("year", car.year?.toString());
-                              setValue("price", car.price?.toString());
-                              setValue("mileage", car.mileage?.toString());
-                              setValue("color", car.color);
-                              setValue("fuelType", car.fuelType);
-                              setValue("transmission", car.transmission);
-                              setValue("bodyType", car.bodyType);
-                              setValue("seats", car.seats?.toString());
-                              setValue("status", car.status);
-                              setValue("description", car.description);
-                              setValue("featured", car.featured);
-                              setUploadedImages(car.images);
-                              setCarToAction(car);
-                              setEditDialogOpen(true);
-                            }}
-                          >
-                            <SquarePen className="size-4" />
-                            Edit
-                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuLabel>Status</DropdownMenuLabel>
                           <DropdownMenuItem

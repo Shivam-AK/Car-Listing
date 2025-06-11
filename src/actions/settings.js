@@ -56,7 +56,7 @@ export async function saveWorkingHours(workingHours) {
 
     if (!user) throw new Error("User Not Found");
 
-    if (user.role !== "ADMIN" || user.role !== "DEALERSHIP") {
+    if (!(user.role === "ADMIN" || user.role === "DEALERSHIP")) {
       throw new Error("Unauthorized: Admin access required");
     }
 
@@ -110,7 +110,7 @@ export async function saveDealership(data) {
 
     if (!user) throw new Error("User Not Found");
 
-    if (user.role !== "ADMIN" || user.role !== "DEALERSHIP") {
+    if (!(user.role === "ADMIN" || user.role === "DEALERSHIP")) {
       throw new Error("Unauthorized: Admin access required");
     }
 

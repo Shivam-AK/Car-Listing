@@ -111,16 +111,15 @@ export async function processCarImageWithAI(file) {
         data: carDetails,
       };
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      console.log("Raw response:", text);
+      console.error("Failed to parse AI response : " + parseError);
+      console.log("Raw response:" + text);
       return {
         success: false,
         error: "Failed to parse AI response",
       };
     }
   } catch (error) {
-    console.error("Gemini API error :", error.message);
-    throw new Error("Gemini API error :", error.message);
+    throw new Error("Gemini API error : " + error.message);
   }
 }
 
@@ -134,6 +133,14 @@ export async function addCar({ carData, images }) {
     });
 
     if (!user) throw new Error("User Not Found");
+
+    const dealership = await DB.dealershipInfo.findUnique({
+      where: { userId: user.id },
+    });
+
+    if (!dealership) {
+      throw new Error("Please Setup Your Dealership First.");
+    }
 
     // Create a unique folder name for this car's images
     const carId = uuidv4();
@@ -207,6 +214,7 @@ export async function addCar({ carData, images }) {
         status: carData.status,
         featured: carData.featured,
         images: imageUrls, // Store the array of image URLs
+        dealershipInfoId: dealership.id,
       },
     });
 
@@ -217,8 +225,7 @@ export async function addCar({ carData, images }) {
       success: true,
     };
   } catch (error) {
-    console.error("Error Adding New car:", error.message);
-    throw new Error("Error Adding New car :", error.message);
+    throw new Error("Error Adding New car : " + error.message);
   }
 }
 
@@ -235,7 +242,11 @@ export async function getCars(search = "") {
     if (!user) throw new Error("User Not Found");
 
     // Build where conditions
-    let where = {};
+    let where = {
+      DealershipInfo: {
+        userId: user.id,
+      },
+    };
 
     // Add search filter
     if (search) {
@@ -249,6 +260,14 @@ export async function getCars(search = "") {
     // Execute main query
     const cars = await DB.car.findMany({
       where,
+      include: {
+        DealershipInfo: {
+          select: {
+            name: true,
+            userId: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -259,11 +278,7 @@ export async function getCars(search = "") {
       data: serializedCars,
     };
   } catch (error) {
-    console.error("Error Fetching Cars:", error);
-    return {
-      success: false,
-      error: error.message,
-    };
+    throw new Error("Error Fetching Cars : " + error.message);
   }
 }
 
@@ -332,11 +347,7 @@ export async function deleteCar(id) {
       success: true,
     };
   } catch (error) {
-    console.error("Error Deleting Car:", error);
-    return {
-      success: false,
-      error: error.message,
-    };
+    throw new Error("Error Deleting Car : " + error.message);
   }
 }
 
@@ -436,7 +447,6 @@ export async function updateCar({ carId, carData, images }) {
     }
 
     // Update the car
-    console.log(updateData);
     if (Object.keys(updateData).length > 0) {
       await DB.car.update({
         where: { id: carId },
@@ -446,10 +456,6 @@ export async function updateCar({ carId, carData, images }) {
 
     return { success: true };
   } catch (error) {
-    console.error("Error Updating Car:", error?.message);
-    return {
-      success: false,
-      error: error.message,
-    };
+    throw new Error("Error Updating Car : " + error?.message);
   }
 }

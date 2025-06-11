@@ -1,6 +1,5 @@
 "use server";
 
-import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -33,7 +32,13 @@ export async function getAdminTestDrives(search = "", status = "") {
       throw new Error("Unauthorized: Admin access required.");
     }
 
-    let where = {};
+    let where = {
+      car: {
+        DealershipInfo: {
+          userId: user.id,
+        },
+      },
+    };
 
     if (status) {
       where.status = status;
@@ -63,14 +68,25 @@ export async function getAdminTestDrives(search = "", status = "") {
     const bookings = await DB.testDriveBooking.findMany({
       where,
       include: {
-        car: true,
-        user: {
+        car: {
           select: {
             id: true,
+            images: true,
+            year: true,
+            make: true,
+            model: true,
+            DealershipInfo: {
+              select: {
+                name: true,
+                userId: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
             name: true,
             email: true,
-            imageUrl: true,
-            phone: true,
           },
         },
       },
@@ -80,7 +96,7 @@ export async function getAdminTestDrives(search = "", status = "") {
     const formattedBookings = bookings.map((booking) => ({
       id: booking.id,
       carId: booking.carId,
-      car: serializeCarData(booking.car),
+      car: booking.car,
       userId: booking.userId,
       user: booking.user,
       bookingDate: booking.bookingDate.toISOString(),
@@ -167,19 +183,47 @@ export async function getDashboardData() {
     const [cars, testDrives] = await Promise.all([
       // Get all cars with minimal fields
       DB.car.findMany({
+        where: {
+          DealershipInfo: {
+            userId: user.id,
+          },
+        },
         select: {
           id: true,
           status: true,
           featured: true,
+          DealershipInfo: {
+            select: {
+              name: true,
+              userId: true,
+            },
+          },
         },
       }),
 
       // Get all test drives with minimal fields
       DB.testDriveBooking.findMany({
+        where: {
+          car: {
+            DealershipInfo: {
+              userId: user.id,
+            },
+          },
+        },
         select: {
           id: true,
           status: true,
           carId: true,
+          car: {
+            select: {
+              DealershipInfo: {
+                select: {
+                  name: true,
+                  userId: true,
+                },
+              },
+            },
+          },
         },
       }),
     ]);

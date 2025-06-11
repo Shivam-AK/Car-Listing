@@ -124,9 +124,10 @@ export default function SettingForm() {
         });
 
         setWorkingHours(mappedHours);
+      } else {
+        toast.error("Please Setup Your Working Hours.");
       }
     }
-    console.log(fetchHoursData);
   }, [fetchHoursData]);
 
   useEffect(() => {
