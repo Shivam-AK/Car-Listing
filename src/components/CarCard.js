@@ -53,7 +53,7 @@ export default function CarCard({ car }) {
 
   return (
     <Card className="group gap-0 overflow-hidden py-0 transition hover:shadow-lg">
-      <div className="relative h-48">
+      <div className="relative aspect-video">
         {car.images && car.images.length > 0 ? (
           <div className="relative h-full w-full">
             <Image
@@ -92,7 +92,7 @@ export default function CarCard({ car }) {
           )}
         </Button>
       </div>
-      <CardContent className="p-4">
+      <CardContent className="grid h-full content-between p-4">
         <div className="mb-4 flex flex-col">
           <h3 className="line-clamp-1 text-lg font-bold">{`${car.make} ${car.model}`}</h3>
           <span className="text-xl font-bold text-blue-600">

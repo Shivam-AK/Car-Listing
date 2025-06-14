@@ -22,7 +22,7 @@ import CarListingsLoading from "./CarListingsLoading";
 
 export default function CarListings() {
   const searchParams = useSearchParams();
-  const limit = 1;
+  const limit = 6;
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(searchParams.get("page") || 1);
 
@@ -195,7 +195,7 @@ export default function CarListings() {
       </div>
 
       {/* Car Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {cars.map((car) => (
           <CarCard key={car.id} car={car} />
         ))}

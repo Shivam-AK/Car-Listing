@@ -146,7 +146,7 @@ export default function CarFilters({ filters }) {
   return (
     <div className="flex justify-between gap-4 lg:flex-col">
       {/* Mobile Filter */}
-      <div className="mb-5 lg:hidden">
+      <div className="lg:hidden">
         <div className="flex items-center">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
@@ -198,8 +198,13 @@ export default function CarFilters({ filters }) {
       <Select
         value={sortBy}
         onValueChange={(value) => {
-          setSortBy(value);
-          setTimeout(() => applyFilters(), 0);
+          const params = new URLSearchParams(searchParams);
+          value === "newest"
+            ? params.delete("sortBy")
+            : params.set("sortBy", value);
+
+          const query = params.toString();
+          router.push(query ? `${pathname}?${query}` : pathname);
         }}
       >
         <SelectTrigger className="w-[180px] lg:w-full">

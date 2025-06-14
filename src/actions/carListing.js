@@ -7,49 +7,34 @@ import { revalidatePath } from "next/cache";
 
 export async function getCarFilters() {
   try {
-    const makes = await DB.car.findMany({
+    const carData = await DB.car.findMany({
       where: { status: "AVAILABLE" },
-      select: { make: true },
-      distinct: ["make"],
-      orderBy: { make: "asc" },
+      select: {
+        make: true,
+        bodyType: true,
+        fuelType: true,
+        transmission: true,
+      },
     });
 
-    const bodyTypes = await DB.car.findMany({
-      where: { status: "AVAILABLE" },
-      select: { bodyType: true },
-      distinct: ["bodyType"],
-      orderBy: { bodyType: "asc" },
-    });
+    const makes = carData.map((item) => item.make).sort();
+    const bodyTypes = carData.map((item) => item.bodyType).sort();
+    const fuelTypes = carData.map((item) => item.fuelType).sort();
+    const transmissions = carData.map((item) => item.transmission).sort();
 
-    const fuelTypes = await DB.car.findMany({
+    const priceAggregations = await DB.car.aggregate({
       where: { status: "AVAILABLE" },
-      select: { fuelType: true },
-      distinct: ["fuelType"],
-      orderBy: { fuelType: "asc" },
+      _min: { price: true },
+      _max: { price: true },
     });
-
-    const transmissions = await DB.car.findMany({
-      where: { status: "AVAILABLE" },
-      select: { transmission: true },
-      distinct: ["transmission"],
-      orderBy: { transmission: "asc" },
-    });
-
-    const priceAggregations = DB.car.aggregate({
-      where: { status: "AVAILABLE" },
-      _min: true,
-      _max: true,
-    });
-
-    // console.log(makes, bodyTypes);
 
     return {
       success: true,
       data: {
-        makes: makes.map((item) => item.make),
-        bodyTypes: bodyTypes.map((item) => item.bodyType),
-        fuelTypes: fuelTypes.map((item) => item.fuelType),
-        transmissions: transmissions.map((item) => item.transmission),
+        makes: [...new Set(makes)],
+        bodyTypes: [...new Set(bodyTypes)],
+        fuelTypes: [...new Set(fuelTypes)],
+        transmissions: [...new Set(transmissions)],
         priceRange: {
           min: priceAggregations._min?.price
             ? parseFloat(priceAggregations._min?.price.toString())

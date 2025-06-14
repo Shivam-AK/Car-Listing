@@ -18,7 +18,7 @@ export default async function Home() {
   const featuredCars = await getFeaturedCars();
 
   return (
-    <main className="mt-16">
+    <>
       <section className="dotted-background relative py-16 md:py-28">
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-8">
@@ -211,6 +211,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </main>
+    </>
   );
 }
