@@ -29,14 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useFetch from "@/hooks/useFetch";
-import {
-  Loader2,
-  MoreHorizontal,
-  Search,
-  SquarePen,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { Loader2, MoreHorizontal, Search, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -92,7 +85,9 @@ export default function UserList() {
     ? usersData.data.filter(
         (user) =>
           user.email.toLowerCase().includes(userSearch.toLowerCase()) ||
-          user.name.toLowerCase().includes(userSearch.toLowerCase())
+          user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+          `${user?.phone}`.toLowerCase().includes(userSearch.toLowerCase()) ||
+          user.role.toLowerCase().includes(userSearch.toLowerCase())
       )
     : [];
 

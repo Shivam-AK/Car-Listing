@@ -162,7 +162,7 @@ export default function CarList() {
 
   useEffect(() => {
     fetchCars(search);
-  }, [search]);
+  }, []);
 
   // Handle successful operations
   useEffect(() => {
@@ -210,10 +210,20 @@ export default function CarList() {
     setCarToAction(null);
   };
 
-  const handleSearchSubmit = () => {
-    e.preventDefault();
-    fetchCars(search);
-  };
+  const filterCarsData = carsData?.success
+    ? carsData.data.filter(
+        (car) =>
+          car.make.toLowerCase().includes(search.toLowerCase()) ||
+          car.model.toLowerCase().includes(search.toLowerCase()) ||
+          `${car.year}`.toLowerCase().includes(search.toLowerCase()) ||
+          `${car.price}`.toLowerCase().includes(search.toLowerCase()) ||
+          car.color.toLowerCase().includes(search.toLowerCase()) ||
+          car.fuelType.toLowerCase().includes(search.toLowerCase()) ||
+          car.transmission.toLowerCase().includes(search.toLowerCase()) ||
+          car.bodyType.toLowerCase().includes(search.toLowerCase()) ||
+          car.status.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
 
   const {
     register,
@@ -308,7 +318,7 @@ export default function CarList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="mb:flex-row flex flex-col items-start justify-between gap-4 sm:items-center">
         <Button
           onClick={() => router.push("/admin/cars/create")}
           className="flex items-center"
@@ -317,18 +327,16 @@ export default function CarList() {
           Add Car
         </Button>
 
-        <form onSubmit={handleSearchSubmit} className="flex w-full sm:w-auto">
-          <div className="relative flex-1">
-            <Search className="absolute top-2.5 left-2.5 size-4 text-gray-500" />
-            <Input
-              type="search"
-              placeholder="Search cars..."
-              className="w-full pl-9 sm:w-60"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        </form>
+        <div className="mb:w-auto relative w-full">
+          <Search className="absolute top-2.5 left-2.5 size-4 text-gray-500" />
+          <Input
+            type="search"
+            placeholder="Search cars..."
+            className="mb:w-60 w-full pl-9"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Car Table */}
@@ -338,7 +346,7 @@ export default function CarList() {
             <div className="flex-center py-12">
               <Loader2 className="size-8 animate-spin text-gray-400" />
             </div>
-          ) : carsData?.success && carsData.data.length > 0 ? (
+          ) : carsData?.success && filterCarsData.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -352,7 +360,7 @@ export default function CarList() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {carsData.data.map((car) => (
+                {filterCarsData.map((car) => (
                   <TableRow key={car.id}>
                     <TableCell>
                       <div className="size-10 overflow-hidden rounded-md">

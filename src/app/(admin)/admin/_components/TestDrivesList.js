@@ -48,7 +48,7 @@ export default function TestDrivesList() {
 
   useEffect(() => {
     fetchTestDrives(search, statusFilter);
-  }, [search, statusFilter]);
+  }, [statusFilter]);
 
   useEffect(() => {
     if (updateResult?.success) {
@@ -76,10 +76,17 @@ export default function TestDrivesList() {
     }
   }, [testDrivesError, updateError, cancelError]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetchTestDrives(search, statusFilter);
-  };
+  const filterTestDrives = testDrivesData?.success
+    ? testDrivesData.data.filter(
+        (booking) =>
+          booking.user.name.toLowerCase().includes(search.toLowerCase()) ||
+          booking.user.email.toLowerCase().includes(search.toLowerCase()) ||
+          `${booking.car.year}`.toLowerCase().includes(search.toLowerCase()) ||
+          booking.car.make.toLowerCase().includes(search.toLowerCase()) ||
+          booking.car.model.toLowerCase().includes(search.toLowerCase()) ||
+          booking.status.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
 
   const handleUpdateStatus = async (bookingId, newStatus) => {
     if (newStatus) {
@@ -90,12 +97,12 @@ export default function TestDrivesList() {
   return (
     <div className="space-y-5">
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="flex w-full flex-col gap-4 sm:flex-row">
+        <div className="mb:flex-row flex w-full flex-col gap-4">
           <Select
             value={statusFilter}
             onValueChange={(value) => setStatusFilter(value || "")}
           >
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="mb:w-36 w-full">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -108,22 +115,16 @@ export default function TestDrivesList() {
             </SelectContent>
           </Select>
 
-          <form
-            onSubmit={handleSearchSubmit}
-            className="mb:flex-row flex w-full flex-col gap-3"
-          >
-            <div className="relative flex-1">
-              <Search className="absolute top-2.5 left-2.5 size-4 text-gray-500" />
-              <Input
-                type="search"
-                placeholder="Search by car or customer..."
-                className="w-full pl-9"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <Button type="submit">Search</Button>
-          </form>
+          <div className="relative flex-1">
+            <Search className="absolute top-2.5 left-2.5 size-4 text-gray-500" />
+            <Input
+              type="search"
+              placeholder="Search by car or customer..."
+              className="w-full pl-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -149,7 +150,7 @@ export default function TestDrivesList() {
               Failed to load test drives. Please try again.
             </AlertDescription>
           </Alert>
-        ) : testDrivesData?.data?.length === 0 ? (
+        ) : filterTestDrives?.length === 0 ? (
           <div className="flex-center flex-col px-4 py-12 text-center">
             <CalendarRange className="mb-4 size-12 text-gray-300" />
             <h3 className="mb-1 text-lg font-medium text-gray-900">
@@ -170,7 +171,7 @@ export default function TestDrivesList() {
                 : "tb:grid-cols-2 md:grid-cols-1 lg:grid-cols-1"
             )}
           >
-            {testDrivesData?.data?.map((booking) => (
+            {filterTestDrives?.map((booking) => (
               <div key={booking.id}>
                 <TestDriveCard
                   booking={booking}

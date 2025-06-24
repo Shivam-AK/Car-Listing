@@ -12,7 +12,7 @@ export async function getAdmin() {
     where: { clerkUserId: userId },
   });
 
-  if (!user || user.role !== "ADMIN") {
+  if (!(user || user.role === "DEALERSHIP" || user.role === "ADMIN")) {
     return { authorized: false, reason: "Not-Admin" };
   }
 
@@ -34,7 +34,7 @@ export async function getAdminTestDrives(search = "", status = "") {
 
     let where = {
       car: {
-        DealershipInfo: {
+        dealership: {
           userId: user.id,
         },
       },
@@ -75,7 +75,7 @@ export async function getAdminTestDrives(search = "", status = "") {
             year: true,
             make: true,
             model: true,
-            DealershipInfo: {
+            dealership: {
               select: {
                 name: true,
                 userId: true,
@@ -167,7 +167,7 @@ export async function updateTestDriveStatus(bookingId, newStatus) {
   }
 }
 
-export async function getDashboardData() {
+export async function getDashboardData(filter) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized User.");
@@ -176,15 +176,15 @@ export async function getDashboardData() {
       where: { clerkUserId: userId },
     });
 
-    if (!user || user.role !== "ADMIN") {
+    if (!(user || user.role === "DEALERSHIP" || user.role === "ADMIN")) {
       throw new Error("Unauthorized: Admin access required.");
     }
 
-    const [cars, testDrives] = await Promise.all([
+    const dbCalls = [
       // Get all cars with minimal fields
       DB.car.findMany({
         where: {
-          DealershipInfo: {
+          dealership: {
             userId: user.id,
           },
         },
@@ -192,7 +192,7 @@ export async function getDashboardData() {
           id: true,
           status: true,
           featured: true,
-          DealershipInfo: {
+          dealership: {
             select: {
               name: true,
               userId: true,
@@ -205,7 +205,7 @@ export async function getDashboardData() {
       DB.testDriveBooking.findMany({
         where: {
           car: {
-            DealershipInfo: {
+            dealership: {
               userId: user.id,
             },
           },
@@ -216,7 +216,7 @@ export async function getDashboardData() {
           carId: true,
           car: {
             select: {
-              DealershipInfo: {
+              dealership: {
                 select: {
                   name: true,
                   userId: true,
@@ -226,7 +226,29 @@ export async function getDashboardData() {
           },
         },
       }),
-    ]);
+    ];
+
+    if (user.role === "ADMIN") {
+      dbCalls.push(
+        DB.dealershipInfo.findMany({
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                role: true,
+              },
+            },
+          },
+          orderBy: { name: "asc" },
+        })
+      );
+    }
+
+    const [cars, testDrives, dealership] = await Promise.all(dbCalls);
 
     // Total car statistics
     const totalCars = cars.length;
@@ -274,6 +296,8 @@ export async function getDashboardData() {
     return {
       success: true,
       data: {
+        dealership,
+        currentDealership: dealership?.find((item) => item.user.id === user.id),
         cars: {
           total: totalCars,
           available: availableCars,
