@@ -27,10 +27,10 @@ export default function SelectSearchParams({
 
   return (
     <Select
-      value={params || currentDealership?.id || ""}
+      value={params || currentDealership?.user?.id || ""}
       onValueChange={(value) => {
         const params = new URLSearchParams(searchParams);
-        value === currentDealership?.id
+        value === currentDealership?.user?.id
           ? params.delete("filter")
           : params.set("filter", value);
 
@@ -38,7 +38,7 @@ export default function SelectSearchParams({
         router.push(query ? `${pathname}?${query}` : pathname);
       }}
     >
-      <SelectTrigger className="mb:w-36 w-full">
+      <SelectTrigger className="mb:w-60 w-full">
         <SelectValue placeholder="All Data" />
       </SelectTrigger>
       <SelectContent>
@@ -46,7 +46,13 @@ export default function SelectSearchParams({
         <SelectGroup>
           <SelectLabel>Admin</SelectLabel>
           {admins.map((item) => (
-            <SelectItem key={item.id} value={item.id}>
+            <SelectItem
+              key={item.id}
+              className={
+                item.user.id === currentDealership?.user?.id && "font-semibold"
+              }
+              value={item.user.id}
+            >
               {item.name}
             </SelectItem>
           ))}
@@ -54,7 +60,7 @@ export default function SelectSearchParams({
         <SelectGroup>
           <SelectLabel>Dealership</SelectLabel>
           {dealerships.map((item) => (
-            <SelectItem key={item.id} value={item.id}>
+            <SelectItem key={item.id} value={item.user.id}>
               {item.name}
             </SelectItem>
           ))}

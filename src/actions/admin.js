@@ -19,7 +19,7 @@ export async function getAdmin() {
   return { authorized: true, user };
 }
 
-export async function getAdminTestDrives(search = "", status = "") {
+export async function getAdminTestDrives(status = "") {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized User.");
@@ -28,7 +28,7 @@ export async function getAdminTestDrives(search = "", status = "") {
       where: { clerkUserId: userId },
     });
 
-    if (!user || user.role !== "ADMIN") {
+    if (!(user || user.role === "DEALERSHIP" || user.role === "ADMIN")) {
       throw new Error("Unauthorized: Admin access required.");
     }
 
@@ -42,27 +42,6 @@ export async function getAdminTestDrives(search = "", status = "") {
 
     if (status) {
       where.status = status;
-    }
-
-    if (search) {
-      where.OR = [
-        {
-          car: {
-            OR: [
-              { make: { contains: search, mode: "insensitive" } },
-              { model: { contains: search, mode: "insensitive" } },
-            ],
-          },
-        },
-        {
-          user: {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { email: { contains: search, mode: "insensitive" } },
-            ],
-          },
-        },
-      ];
     }
 
     const bookings = await DB.testDriveBooking.findMany({
@@ -180,14 +159,35 @@ export async function getDashboardData(filter) {
       throw new Error("Unauthorized: Admin access required.");
     }
 
+    const whereCar = {};
+    const whereTestDrive = {};
+
+    if (user.role === "DEALERSHIP" || filter === undefined) {
+      whereCar.dealership = {
+        userId: user.id,
+      };
+      whereTestDrive.car = {
+        dealership: {
+          userId: user.id,
+        },
+      };
+    } else {
+      if (filter !== "all-dealership") {
+        whereCar.dealership = {
+          userId: filter,
+        };
+        whereTestDrive.car = {
+          dealership: {
+            userId: filter,
+          },
+        };
+      }
+    }
+
     const dbCalls = [
       // Get all cars with minimal fields
       DB.car.findMany({
-        where: {
-          dealership: {
-            userId: user.id,
-          },
-        },
+        where: whereCar,
         select: {
           id: true,
           status: true,
@@ -203,13 +203,7 @@ export async function getDashboardData(filter) {
 
       // Get all test drives with minimal fields
       DB.testDriveBooking.findMany({
-        where: {
-          car: {
-            dealership: {
-              userId: user.id,
-            },
-          },
-        },
+        where: whereTestDrive,
         select: {
           id: true,
           status: true,
