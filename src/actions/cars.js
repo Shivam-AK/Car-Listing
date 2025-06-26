@@ -1,9 +1,9 @@
 "use server";
 
+import { getBothUser } from "@/lib/auth";
 import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
 import { createClient } from "@/lib/superbase";
-import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -125,14 +125,8 @@ export async function processCarImageWithAI(file) {
 
 export async function addCar({ carData, images }) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User Not Found");
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     const dealership = await DB.dealershipInfo.findUnique({
       where: { userId: user.id },
@@ -214,7 +208,7 @@ export async function addCar({ carData, images }) {
         status: carData.status,
         featured: carData.featured,
         images: imageUrls, // Store the array of image URLs
-        dealershipInfoId: dealership.id,
+        dealershipId: dealership.id,
       },
     });
 
@@ -229,39 +223,33 @@ export async function addCar({ carData, images }) {
   }
 }
 
-export async function getCars(search = "") {
+export async function getCars(filter) {
   try {
     // Check is Authorized
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User Not Found");
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     // Build where conditions
-    let where = {
-      DealershipInfo: {
-        userId: user.id,
-      },
-    };
+    let where = {};
 
     // Add search filter
-    if (search) {
-      where.OR = [
-        { make: { contains: search, mode: "insensitive" } },
-        { model: { contains: search, mode: "insensitive" } },
-        { color: { contains: search, mode: "insensitive" } },
-      ];
+    if (user.role === "DEALERSHIP" || filter === undefined) {
+      where.dealership = {
+        userId: user.id,
+      };
+    } else {
+      if (filter !== "all-dealership") {
+        where.dealership = {
+          userId: filter,
+        };
+      }
     }
 
     // Execute main query
     const cars = await DB.car.findMany({
       where,
       include: {
-        DealershipInfo: {
+        dealership: {
           select: {
             name: true,
             userId: true,
@@ -285,14 +273,8 @@ export async function getCars(search = "") {
 export async function deleteCar(id) {
   try {
     // Check is Authorized
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User Not Found");
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     // First, fetch the car to get its images
     const car = await DB.car.findUnique({
@@ -354,22 +336,14 @@ export async function deleteCar(id) {
 export async function updateCar({ carId, carData, images }) {
   try {
     // Check is Authorized
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User Not Found");
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     const existingCar = await DB.car.findUnique({
       where: { id: carId },
     });
 
     if (!existingCar) throw new Error("Car Not Found");
-    if (user.role !== "ADMIN")
-      throw new Error("Not Authorized to Update this Car");
 
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);

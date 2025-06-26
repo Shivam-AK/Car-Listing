@@ -1,24 +1,13 @@
 "use server";
 
+import { getAdminUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 export async function getUsers() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const adminUser = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!adminUser) throw new Error("Admin User Not Found.");
-
-    // Check if user is admin
-    if (adminUser.role !== "ADMIN") {
-      throw new Error("Unauthorized: Admin access required.");
-    }
+    const user = await getAdminUser();
+    if (user instanceof Error) throw user;
 
     // Get all users
     const users = await DB.user.findMany({
@@ -40,19 +29,8 @@ export async function getUsers() {
 
 export async function updateUserRole(userId, role) {
   try {
-    const { userId: adminId } = await auth();
-    if (!adminId) throw new Error("Unauthorized User.");
-
-    const adminUser = await DB.user.findUnique({
-      where: { clerkUserId: adminId },
-    });
-
-    if (!adminUser) throw new Error("Admin User Not Found.");
-
-    // Check if user is admin
-    if (adminUser.role !== "ADMIN") {
-      throw new Error("Unauthorized: Admin access required.");
-    }
+    const user = await getAdminUser();
+    if (user instanceof Error) throw user;
 
     // Update user role
     await DB.user.update({

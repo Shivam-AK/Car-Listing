@@ -1,20 +1,14 @@
 "use server";
 
+import { getBothUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 export async function getDealershipInfo() {
   try {
     // Check is Authorized
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User Not Found");
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     let dealership = await DB.dealershipInfo.findUnique({
       where: { userId: user.id },
@@ -46,19 +40,8 @@ export async function getDealershipInfo() {
 
 export async function saveWorkingHours(workingHours) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    // Check if user is admin
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User Not Found");
-
-    if (!(user.role === "ADMIN" || user.role === "DEALERSHIP")) {
-      throw new Error("Unauthorized: Admin access required");
-    }
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     // Get current dealership info
     const dealership = await DB.dealershipInfo.findUnique({
@@ -100,19 +83,8 @@ export async function saveWorkingHours(workingHours) {
 
 export async function saveDealership(data) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    // Check if user is admin
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User Not Found");
-
-    if (!(user.role === "ADMIN" || user.role === "DEALERSHIP")) {
-      throw new Error("Unauthorized: Admin access required");
-    }
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     // Get current dealership info
     const dealership = await DB.dealershipInfo.findUnique({

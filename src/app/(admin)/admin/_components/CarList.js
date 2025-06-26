@@ -128,7 +128,7 @@ const carFormSchema = z.object({
   featured: z.boolean().default(false),
 });
 
-export default function CarList() {
+export default function CarList({ params }) {
   const router = useRouter();
 
   const [search, setSearch] = useState("");
@@ -161,19 +161,19 @@ export default function CarList() {
   } = useFetch(updateCar);
 
   useEffect(() => {
-    fetchCars(search);
-  }, []);
+    fetchCars(params);
+  }, [params]);
 
   // Handle successful operations
   useEffect(() => {
     if (deleteResult?.success) {
       toast.success("Car deleted successfully");
-      fetchCars(search);
+      fetchCars(params);
     }
 
     if (updateResult?.success) {
       toast.success("Car updated successfully");
-      fetchCars(search);
+      fetchCars(params);
       setEditDialogOpen(false);
     }
   }, [deleteResult, updateResult]);
@@ -340,8 +340,8 @@ export default function CarList() {
       </div>
 
       {/* Car Table */}
-      <Card>
-        <CardContent>
+      <Card className="py-3.5 sm:py-5">
+        <CardContent className="px-3.5 sm:px-5">
           {loadingCars && !carsData ? (
             <div className="flex-center py-12">
               <Loader2 className="size-8 animate-spin text-gray-400" />
@@ -363,13 +363,13 @@ export default function CarList() {
                 {filterCarsData.map((car) => (
                   <TableRow key={car.id}>
                     <TableCell>
-                      <div className="size-10 overflow-hidden rounded-md">
+                      <div className="h-10 w-14 overflow-hidden rounded-sm">
                         {car.images && car.images.length > 0 ? (
                           <Image
                             src={car.images[0]}
                             alt={`${car.make} ${car.model}`}
                             height={40}
-                            width={40}
+                            width={56}
                             className="h-full w-full object-cover"
                             priority
                           />
@@ -862,12 +862,12 @@ export default function CarList() {
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                       {uploadedImages.map((image, index) => (
                         <div key={index} className="group relative">
-                          <img
+                          <Image
                             src={image}
                             alt={`Car Image ${index}`}
                             className="h-28 w-full rounded-md object-cover"
-                            height={50}
-                            width={50}
+                            height={112}
+                            width={140}
                           />
                           <Button
                             type="button"

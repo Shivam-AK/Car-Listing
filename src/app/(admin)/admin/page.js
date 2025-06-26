@@ -13,7 +13,7 @@ export default async function Admin({ _, searchParams }) {
 
   return (
     <section className="mb:p-5 p-3.5">
-      <div className="flex-between mb-6">
+      <div className="mb:flex-row mb-6 flex flex-col justify-between gap-3">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         {dashboardData.data.currentDealership?.user?.role === "ADMIN" && (
           <SelectSearchParams

@@ -1,5 +1,6 @@
 "use server";
 
+import { getLoggedInUser } from "@/lib/auth";
 import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
 import { auth } from "@clerk/nextjs/server";
@@ -150,14 +151,8 @@ export async function getCars(
 
 export async function toggleSavedCar(carId) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found.");
+    const user = await getLoggedInUser();
+    if (user instanceof Error) throw user;
 
     const car = await DB.car.findUnique({
       where: { id: carId },
@@ -217,14 +212,8 @@ export async function toggleSavedCar(carId) {
 
 export async function getSavedCars() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found.");
+    const user = await getLoggedInUser();
+    if (user instanceof Error) throw user;
 
     const savedCars = await DB.userSavedCar.findMany({
       where: { userId: user.id },
@@ -319,7 +308,7 @@ export async function getCarById(carId) {
 
     const dealership = await DB.dealershipInfo.findUnique({
       where: {
-        id: car.dealershipInfoId,
+        id: car.dealershipId,
       },
       include: {
         workingHours: true,

@@ -1,44 +1,42 @@
 "use server";
 
+import { getBothUser, getLoggedInUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 export async function getAdmin() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized User.");
+  const user = await getLoggedInUser();
+  if (user instanceof Error) throw user;
 
-  const user = await DB.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!(user || user.role === "DEALERSHIP" || user.role === "ADMIN")) {
+  if (!(user.role === "DEALERSHIP" || user.role === "ADMIN")) {
     return { authorized: false, reason: "Not-Admin" };
   }
 
   return { authorized: true, user };
 }
 
-export async function getAdminTestDrives(status = "") {
+export async function getAdminTestDrives(status = "", filter) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    let where = {};
 
-    if (!(user || user.role === "DEALERSHIP" || user.role === "ADMIN")) {
-      throw new Error("Unauthorized: Admin access required.");
-    }
-
-    let where = {
-      car: {
+    if (user.role === "DEALERSHIP" || filter === undefined) {
+      where.car = {
         dealership: {
           userId: user.id,
         },
-      },
-    };
+      };
+    } else {
+      if (filter !== "all-dealership") {
+        where.car = {
+          dealership: {
+            userId: filter,
+          },
+        };
+      }
+    }
 
     if (status) {
       where.status = status;
@@ -98,16 +96,8 @@ export async function getAdminTestDrives(status = "") {
 
 export async function updateTestDriveStatus(bookingId, newStatus) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user || user.role !== "ADMIN") {
-      throw new Error("Unauthorized: Admin access required.");
-    }
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     const booking = await DB.testDriveBooking.findUnique({
       where: { id: bookingId },
@@ -148,16 +138,8 @@ export async function updateTestDriveStatus(bookingId, newStatus) {
 
 export async function getDashboardData(filter) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized User.");
-
-    const user = await DB.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!(user || user.role === "DEALERSHIP" || user.role === "ADMIN")) {
-      throw new Error("Unauthorized: Admin access required.");
-    }
+    const user = await getBothUser();
+    if (user instanceof Error) throw user;
 
     const whereCar = {};
     const whereTestDrive = {};
@@ -312,5 +294,49 @@ export async function getDashboardData(filter) {
     };
   } catch (error) {
     throw new Error("Error Fetching Dashboard Data : " + error.message);
+  }
+}
+
+export async function getAllDealerships() {
+  try {
+    const user = await getLoggedInUser();
+    if (user instanceof Error) throw user;
+
+    // Check if user is admin
+    if (user.role !== "ADMIN") {
+      return {
+        success: false,
+        data: { dealerships: undefined, currentDealership: undefined },
+      };
+    }
+
+    // Get all dealerships
+    const dealerships = await DB.dealershipInfo.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return {
+      success: true,
+      data: {
+        dealerships,
+        currentDealership: dealerships?.find(
+          (item) => item.user.id === user.id
+        ),
+      },
+    };
+  } catch (error) {
+    throw new Error("Error Fetch All Dealerships : " + error.message);
   }
 }
