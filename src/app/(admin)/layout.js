@@ -16,10 +16,10 @@ export default async function AdminLayout({ children }) {
 
   return (
     <>
-      <Header isAdminPage />
-      {/* <Sidebar /> */}
       <SidebarProvider className="mt-16 min-h-[calc(100svh-4rem)]">
-        <AppSidebar />
+        <Header isAdminPage />
+        {/* <Sidebar /> */}
+        <AppSidebar user={admin.user} />
         <MainContent>{children}</MainContent>
       </SidebarProvider>
     </>

@@ -1,4 +1,3 @@
-import React from "react";
 import SettingForm from "../_components/SettingForm";
 
 export const metadata = {
@@ -8,9 +7,9 @@ export const metadata = {
 
 export default function Settings() {
   return (
-    <div className="mb-20 p-6">
+    <section className="mb:p-5 p-3.5">
       <h1 className="mb-6 text-2xl font-bold">Settings</h1>
       <SettingForm />
-    </div>
+    </section>
   );
 }

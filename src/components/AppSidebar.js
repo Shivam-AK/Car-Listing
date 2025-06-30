@@ -1,4 +1,4 @@
-"use Client";
+"use client";
 
 import {
   Sidebar,
@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Calendar,
@@ -57,24 +58,35 @@ const items = [
   },
 ];
 
-export default function AppSidebar() {
+const privateUrl = ["/admin/users", "/admin/dealerships"];
+
+export default function AppSidebar({ user }) {
+  const { isMobile } = useSidebar();
+
   return (
-    <Sidebar collapsible="icon" className="mt-16 h-[calc(100svh-4rem)]">
+    <Sidebar
+      collapsible="icon"
+      side={isMobile ? "right" : "left"}
+      className="mt-16 h-[calc(100svh-4rem)]"
+    >
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map(
+                (item) =>
+                  (user.role === "ADMIN" || !privateUrl.includes(item.url)) && (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
