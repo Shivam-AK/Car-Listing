@@ -8,6 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { getLoggedInUser } from "@/lib/auth";
 import { bodyTypes, carMakes, faqItems } from "@/lib/constants";
 import { SignedOut } from "@clerk/nextjs";
 import { Calendar, Car, ChevronRight, Shield } from "lucide-react";
@@ -15,7 +16,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home() {
-  const featuredCars = await getFeaturedCars();
+  let user = await getLoggedInUser();
+  if (user instanceof Error) user = null;
+
+  const featuredCars = await getFeaturedCars(user);
 
   return (
     <>

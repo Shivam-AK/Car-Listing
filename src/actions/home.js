@@ -105,21 +105,13 @@ export async function processImageSearch(file) {
   }
 }
 
-export async function getFeaturedCars(limit = 3) {
+export async function getFeaturedCars(isUser = null, limit = 3) {
   try {
-    const { userId } = await auth();
-    let dbUser = null;
-
-    if (userId) {
-      dbUser = await DB.user.findUnique({
-        where: { clerkUserId: userId },
-      });
-    }
-
     let wishlist = new Set();
-    if (dbUser) {
+
+    if (isUser) {
       const savedCars = await DB.userSavedCar.findMany({
-        where: { userId: dbUser.id },
+        where: { userId: isUser.id },
         select: { carId: true },
       });
 
