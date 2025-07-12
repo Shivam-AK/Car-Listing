@@ -1,11 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function CarListingsLoading() {
+export default function CarListingsLoading({ item = 6 }) {
   return (
     <>
       <Skeleton className="mb-5 h-8 w-40" />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-        {Array(6)
+        {Array(item)
           .fill(1)
           .map((_, i) => (
             <div className="overflow-hidden rounded-lg border" key={i}>

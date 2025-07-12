@@ -1,5 +1,4 @@
-import { getFeaturedCars } from "@/actions/home";
-import CarCard from "@/components/CarCard";
+import FeaturedCars from "@/components/FeaturedCars";
 import HomeSearch from "@/components/HomeSearch";
 import {
   Accordion,
@@ -8,19 +7,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { getLoggedInUser } from "@/lib/auth";
 import { bodyTypes, carMakes, faqItems } from "@/lib/constants";
 import { SignedOut } from "@clerk/nextjs";
 import { Calendar, Car, ChevronRight, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
+import CarListingsLoading from "./cars/_components/CarListingsLoading";
 
-export default async function Home() {
-  let user = await getLoggedInUser();
-  if (user instanceof Error) user = null;
-
-  const featuredCars = await getFeaturedCars(user);
-
+export default function Home() {
   return (
     <>
       <section className="dotted-background relative py-16 md:py-28">
@@ -50,11 +45,9 @@ export default async function Home() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {featuredCars.map((car) => (
-              <CarCard key={car.id} car={car} />
-            ))}
-          </div>
+          <Suspense fallback={<CarListingsLoading item={3} />}>
+            <FeaturedCars />
+          </Suspense>
         </div>
       </section>
 
