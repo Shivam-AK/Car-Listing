@@ -1,9 +1,12 @@
+import { getSavedCars } from "@/actions/carListing";
 import CarCard from "@/components/CarCard";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 
-export default function SavedCarsList({ initialData }) {
+export default async function SavedCarsList() {
+  const initialData = await getSavedCars();
+
   if (!initialData?.data || initialData?.data.length === 0) {
     return (
       <div className="flex-center min-h-96 flex-col rounded-lg border bg-gray-50 p-8 text-center">

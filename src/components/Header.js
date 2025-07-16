@@ -13,7 +13,8 @@ export default async function Header({ isAdminPage = false }) {
 
   return (
     <header className="fixed top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-      <nav className="flex-between mx-auto gap-x-2 px-4 py-2">
+      <h1 className="size-0 truncate">Vahiql Listing</h1>
+      <div className="flex-between mx-auto gap-x-2 px-4 py-2">
         <Link href={isAdminPage ? "/admin" : "/"} className="relative flex">
           <Image
             src="/logo.png"
@@ -29,7 +30,7 @@ export default async function Header({ isAdminPage = false }) {
           )}
         </Link>
 
-        <div className="mb:space-x-4 flex items-center space-x-2.5">
+        <nav className="mb:space-x-4 flex items-center space-x-2.5">
           {isAdminPage ? (
             <Link href="/">
               <Button variant="outline">
@@ -85,8 +86,8 @@ export default async function Header({ isAdminPage = false }) {
           {isAdminPage && (
             <SidebarTrigger className="inline-flex size-9 border shadow md:hidden" />
           )}
-        </div>
-      </nav>
+        </nav>
+      </div>
     </header>
   );
 }

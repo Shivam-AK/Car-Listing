@@ -1,5 +1,5 @@
-import { getFeaturedCars } from "@/actions/home";
-import CarCard from "@/components/CarCard";
+import CarCardLoading from "@/components/CarCardLoading";
+import FeaturedCars from "@/components/FeaturedCars";
 import HomeSearch from "@/components/HomeSearch";
 import {
   Accordion,
@@ -8,19 +8,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { getLoggedInUser } from "@/lib/auth";
 import { bodyTypes, carMakes, faqItems } from "@/lib/constants";
 import { SignedOut } from "@clerk/nextjs";
 import { Calendar, Car, ChevronRight, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default async function Home() {
-  let user = await getLoggedInUser();
-  if (user instanceof Error) user = null;
-
-  const featuredCars = await getFeaturedCars(user);
-
+export default function Home() {
   return (
     <>
       <section className="dotted-background relative py-16 md:py-28">
@@ -50,11 +45,9 @@ export default async function Home() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {featuredCars.map((car) => (
-              <CarCard key={car.id} car={car} />
-            ))}
-          </div>
+          <Suspense fallback={<CarCardLoading item={3} />}>
+            <FeaturedCars />
+          </Suspense>
         </div>
       </section>
 
@@ -80,7 +73,7 @@ export default async function Home() {
                 <div className="relative mx-auto mb-2 h-16 w-auto">
                   <Image
                     src={make.image}
-                    alt={make.name}
+                    alt={`${make.name} Logo`}
                     fill
                     className="object-contain"
                   />
@@ -155,7 +148,7 @@ export default async function Home() {
                 <div className="relative mb-8 flex h-28 justify-end overflow-hidden rounded-lg">
                   <Image
                     src={type.image}
-                    alt={type.name}
+                    alt={`${type.name} Car`}
                     fill
                     className="object-cover transition duration-300 group-hover:scale-105"
                   />

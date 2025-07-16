@@ -5,7 +5,9 @@ export default async function AuthLayout({ children }) {
   return (
     <>
       <Header />
-      <main className="mt-16 flex justify-center p-40">{children}</main>
+      <main className="flex-center mt-16 min-h-[calc(100dvh-64px)]">
+        {children}
+      </main>
       <Footer />
     </>
   );

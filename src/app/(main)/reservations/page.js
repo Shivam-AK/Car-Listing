@@ -1,6 +1,4 @@
 import { getUserTestDrives } from "@/actions/test-drive";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import ReservationsList from "./_components/ReservationsList";
 
 export const metadata = {
@@ -9,11 +7,6 @@ export const metadata = {
 };
 
 export default async function Reservations() {
-  const { userId } = await auth();
-  if (!userId) {
-    redirect("/sign-in?redirect=/reservations");
-  }
-
   const reservationsResult = await getUserTestDrives();
 
   return (
