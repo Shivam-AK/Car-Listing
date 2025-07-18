@@ -144,7 +144,7 @@ export default function CarFilters({ filters }) {
   };
 
   return (
-    <div className="flex justify-between gap-4 lg:flex-col">
+    <div className="sticky top-20 flex justify-between gap-4 lg:flex-col">
       {/* Mobile Filter */}
       <div className="lg:hidden">
         <div className="flex items-center">
@@ -224,7 +224,7 @@ export default function CarFilters({ filters }) {
       </Select>
 
       {/* Desktop Filters */}
-      <div className="sticky top-24 hidden lg:block">
+      <div className="hidden lg:block">
         <div className="overflow-hidden rounded-lg border bg-white">
           <div className="flex-between border-b bg-gray-50 p-4">
             <h3 className="flex items-center text-lg leading-8 font-medium">

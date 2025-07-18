@@ -37,6 +37,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -343,9 +344,7 @@ export default function CarList({ params }) {
       <Card className="py-3.5 sm:py-5">
         <CardContent className="px-3.5 sm:px-5">
           {loadingCars && !carsData ? (
-            <div className="flex-center py-12">
-              <Loader2 className="size-8 animate-spin text-gray-400" />
-            </div>
+            <Skeleton className="h-44 w-full" />
           ) : carsData?.success && filterCarsData.length > 0 ? (
             <Table>
               <TableHeader>

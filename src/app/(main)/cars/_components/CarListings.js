@@ -22,7 +22,7 @@ import CarListingsLoading from "./CarListingsLoading";
 
 export default function CarListings() {
   const searchParams = useSearchParams();
-  const limit = 6;
+  const limit = 9;
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(searchParams.get("page") || 1);
 

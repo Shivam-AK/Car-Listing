@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -29,14 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useFetch from "@/hooks/useFetch";
-import {
-  Landmark,
-  Loader2,
-  MoreHorizontal,
-  Search,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { Landmark, MoreHorizontal, Search, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -103,9 +97,7 @@ export default function DealershipList() {
         </div>
 
         {fetchingDealers ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          </div>
+          <Skeleton className="h-36 w-full" />
         ) : dealersData?.success && filteredDealers.length > 0 ? (
           <div>
             <Table>

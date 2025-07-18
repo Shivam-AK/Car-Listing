@@ -13,9 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import useFetch from "@/hooks/useFetch";
 import { cn } from "@/lib/utils";
-import { AlertCircle, CalendarRange, Loader2, Search } from "lucide-react";
+import { AlertCircle, CalendarRange, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -138,8 +139,9 @@ export default function TestDrivesList({ params }) {
           </p>
         </div>
         {fetchingTestDrives && !testDrivesData ? (
-          <div className="flex-center py-12">
-            <Loader2 className="size-8 animate-spin text-gray-400" />
+          <div className="space-y-5">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-48 w-full" />
           </div>
         ) : testDrivesError ? (
           <Alert variant="destructive">
