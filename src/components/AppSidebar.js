@@ -22,6 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { CustomTrigger } from "./CustomTrigger";
 
 // Menu items.
@@ -61,7 +62,8 @@ const items = [
 const privateUrl = ["/admin/users", "/admin/dealerships"];
 
 export default function AppSidebar({ user }) {
-  const { isMobile } = useSidebar();
+  const { isMobile, toggleSidebar } = useSidebar();
+  const pathname = usePathname();
 
   return (
     <Sidebar
@@ -79,7 +81,11 @@ export default function AppSidebar({ user }) {
                   (user.role === "ADMIN" || !privateUrl.includes(item.url)) && (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
-                        <Link href={item.url}>
+                        <Link
+                          href={item.url}
+                          onClick={isMobile && toggleSidebar}
+                          className={pathname === item.url && "bg-green-100/70"}
+                        >
                           <item.icon />
                           <span>{item.title}</span>
                         </Link>

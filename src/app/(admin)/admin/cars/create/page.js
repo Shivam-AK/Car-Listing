@@ -7,9 +7,9 @@ export const metadata = {
 
 export default function Cars() {
   return (
-    <div className="p-6">
+    <section className="mb:p-5 p-3.5">
       <h1 className="mb-6 text-2xl font-bold">Add New Car</h1>
       <AddCarForm />
-    </div>
+    </section>
   );
 }

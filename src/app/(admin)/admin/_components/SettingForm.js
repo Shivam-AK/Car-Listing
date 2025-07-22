@@ -55,10 +55,8 @@ export default function SettingForm() {
   const {
     register,
     setValue,
-    getValues,
     formState: { errors },
     handleSubmit,
-    watch,
   } = useForm({
     resolver: zodResolver(dealershipFormSchema),
     defaultValues: {
@@ -181,213 +179,211 @@ export default function SettingForm() {
   };
 
   return (
-    <div>
-      <Tabs defaultValue="hours">
-        <TabsList>
-          <TabsTrigger value="hours">
-            <Clock className="mr-1.5 size-4" />
-            Working Hours
-          </TabsTrigger>
-          <TabsTrigger value="dealership">
-            <Landmark className="mr-1.5 size-4" />
-            Dealership
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="hours" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Working Hours</CardTitle>
-              <CardDescription>
-                Set your Dealership's working hours for each day of the week.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {DAYS.map((day, index) => (
-                  <div
-                    key={day.value}
-                    className="grid grid-cols-12 items-center gap-x-3 gap-y-3 rounded-lg px-4 py-3 shadow-sm hover:bg-slate-50"
-                  >
-                    <div className="col-span-6 lg:col-span-2">
-                      <div className="font-medium">{day.label}</div>
-                    </div>
+    <Tabs defaultValue="hours">
+      <TabsList>
+        <TabsTrigger value="hours">
+          <Clock className="mr-1.5 size-4" />
+          Working Hours
+        </TabsTrigger>
+        <TabsTrigger value="dealership">
+          <Landmark className="mr-1.5 size-4" />
+          Dealership
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="hours">
+        <Card className="mb:py-5 py-3.5">
+          <CardHeader className="mb:px-5 px-3.5">
+            <CardTitle>Working Hours</CardTitle>
+            <CardDescription>
+              Set your Dealership's working hours for each day of the week.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="mb:px-5 px-3.5">
+            <div className="space-y-4">
+              {DAYS.map((day, index) => (
+                <div
+                  key={day.value}
+                  className="grid grid-cols-12 items-center gap-x-3 gap-y-3 rounded-lg px-4 py-3 shadow-sm hover:bg-slate-50"
+                >
+                  <div className="col-span-6 lg:col-span-2">
+                    <div className="font-medium">{day.label}</div>
+                  </div>
 
-                    <div className="flex-end col-span-6 lg:col-span-2 lg:!justify-center">
-                      <Checkbox
-                        id={`is-open-${day.value}`}
-                        checked={workingHours[index]?.isOpen}
-                        onCheckedChange={(checked) => {
-                          handleWorkingHourChange(index, "isOpen", checked);
-                        }}
-                      />
-                      <Label
-                        htmlFor={`is-open-${day.value}`}
-                        className="ml-2 cursor-pointer"
-                      >
-                        {workingHours[index]?.isOpen ? "Open" : "Closed"}
-                      </Label>
-                    </div>
+                  <div className="flex-end col-span-6 lg:col-span-2 lg:!justify-center">
+                    <Checkbox
+                      id={`is-open-${day.value}`}
+                      checked={workingHours[index]?.isOpen}
+                      onCheckedChange={(checked) => {
+                        handleWorkingHourChange(index, "isOpen", checked);
+                      }}
+                    />
+                    <Label
+                      htmlFor={`is-open-${day.value}`}
+                      className="ml-2 min-h-9 cursor-pointer"
+                    >
+                      {workingHours[index]?.isOpen ? "Open" : "Closed"}
+                    </Label>
+                  </div>
 
-                    {workingHours[index]?.isOpen ? (
-                      <>
-                        <div className="mb:col-span-6 col-span-12 lg:col-span-4">
-                          <div className="flex items-center gap-x-3">
-                            <Clock className="size-4 shrink-0 text-gray-700" />
-                            <Input
-                              type="time"
-                              value={workingHours[index]?.openTime}
-                              className="text-sm"
-                              onChange={(e) =>
-                                handleWorkingHourChange(
-                                  index,
-                                  "openTime",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <div className="mb:col-span-6 col-span-12 flex items-center gap-x-3 lg:col-span-4">
-                          <div>to</div>
+                  {workingHours[index]?.isOpen ? (
+                    <>
+                      <div className="mb:col-span-6 col-span-12 lg:col-span-4">
+                        <div className="flex items-center gap-x-3">
+                          <Clock className="size-4 shrink-0 text-gray-700" />
                           <Input
                             type="time"
-                            value={workingHours[index]?.closeTime}
+                            value={workingHours[index]?.openTime}
                             className="text-sm"
                             onChange={(e) =>
                               handleWorkingHourChange(
                                 index,
-                                "closeTime",
+                                "openTime",
                                 e.target.value
                               )
                             }
                           />
                         </div>
-                      </>
-                    ) : (
-                      <div className="col-span-11 text-sm text-gray-500 italic lg:col-span-7">
-                        Closed all day
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
 
-              <div className="float-end mt-6">
-                <Button onClick={handleSaveHours} disabled={savingHours}>
-                  {savingHours ? (
-                    <>
-                      <Loader2 className="mr-1 size-4 animate-spin" />
-                      Saving...
+                      <div className="mb:col-span-6 col-span-12 flex items-center gap-x-3 lg:col-span-4">
+                        <div>to</div>
+                        <Input
+                          type="time"
+                          value={workingHours[index]?.closeTime}
+                          className="text-sm"
+                          onChange={(e) =>
+                            handleWorkingHourChange(
+                              index,
+                              "closeTime",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
                     </>
                   ) : (
-                    <>
-                      <Save className="mr-1 size-4" />
-                      Save Working Hours
-                    </>
+                    <div className="col-span-11 text-sm text-gray-500 italic lg:col-span-7">
+                      Closed all day
+                    </div>
                   )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="dealership" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Dealership Info</CardTitle>
-              <CardDescription>Set your Dealership's details.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  {/* Name */}
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Dealership Name</Label>
-                    <Input
-                      id="name"
-                      {...register("name")}
-                      placeholder="e.g. Big Boy Toyz"
-                      autoComplete="off"
-                      className={errors.name ? "border-red-500" : ""}
-                    />
-                    {errors.name && (
-                      <p className="text-xs text-red-500">
-                        {errors.name.message}
-                      </p>
-                    )}
-                  </div>
+                </div>
+              ))}
+            </div>
 
-                  {/* Address */}
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      {...register("address")}
-                      placeholder="e.g. Plot No. 134, Sector 37, Gurugram, Haryana 122001"
-                      autoComplete="off"
-                      className={errors.address ? "border-red-500" : ""}
-                    />
-                    {errors.address && (
-                      <p className="text-xs text-red-500">
-                        {errors.address.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Phone */}
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      {...register("phone")}
-                      placeholder="e.g. 9999999999"
-                      autoComplete="off"
-                      className={errors.phone ? "border-red-500" : ""}
-                    />
-                    {errors.phone && (
-                      <p className="text-xs text-red-500">
-                        {errors.phone.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      {...register("email")}
-                      placeholder="e.g. example@gmail.com"
-                      autoComplete="off"
-                      className={errors.email ? "border-red-500" : ""}
-                    />
-                    {errors.email && (
-                      <p className="text-xs text-red-500">
-                        {errors.email.message}
-                      </p>
-                    )}
-                  </div>
+            <div className="float-end mt-6">
+              <Button onClick={handleSaveHours} disabled={savingHours}>
+                {savingHours ? (
+                  <>
+                    <Loader2 className="mr-1 size-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-1 size-4" />
+                    Save Working Hours
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="dealership">
+        <Card className="mb:py-5 py-3.5">
+          <CardHeader className="mb:px-5 px-3.5">
+            <CardTitle>Dealership Info</CardTitle>
+            <CardDescription>Set your Dealership's details.</CardDescription>
+          </CardHeader>
+          <CardContent className="mb:px-5 px-3.5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {/* Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="name">Dealership Name</Label>
+                  <Input
+                    id="name"
+                    {...register("name")}
+                    placeholder="e.g. Big Boy Toyz"
+                    autoComplete="off"
+                    className={errors.name ? "border-red-500" : ""}
+                  />
+                  {errors.name && (
+                    <p className="text-xs text-red-500">
+                      {errors.name.message}
+                    </p>
+                  )}
                 </div>
 
-                <Button
-                  type="submit"
-                  className="float-end"
-                  disabled={dealershipLoading}
-                >
-                  {dealershipLoading ? (
-                    <>
-                      <Loader2 className="mr-1 size-4 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    "Save Dealership"
+                {/* Address */}
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    {...register("address")}
+                    placeholder="e.g. Plot No. 134, Sector 37, Gurugram, Haryana 122001"
+                    autoComplete="off"
+                    className={errors.address ? "border-red-500" : ""}
+                  />
+                  {errors.address && (
+                    <p className="text-xs text-red-500">
+                      {errors.address.message}
+                    </p>
                   )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    {...register("phone")}
+                    placeholder="e.g. 9999999999"
+                    autoComplete="off"
+                    className={errors.phone ? "border-red-500" : ""}
+                  />
+                  {errors.phone && (
+                    <p className="text-xs text-red-500">
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    {...register("email")}
+                    placeholder="e.g. example@gmail.com"
+                    autoComplete="off"
+                    className={errors.email ? "border-red-500" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="float-end"
+                disabled={dealershipLoading}
+              >
+                {dealershipLoading ? (
+                  <>
+                    <Loader2 className="mr-1 size-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  "Save Dealership"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
   );
 }
