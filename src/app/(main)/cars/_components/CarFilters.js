@@ -161,7 +161,7 @@ export default function CarFilters({ filters }) {
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-full overflow-y-auto sm:max-w-md"
+              className="mb:w-96 w-11/12 overflow-y-auto"
             >
               <SheetHeader>
                 <SheetTitle>Filters.</SheetTitle>

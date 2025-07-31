@@ -135,6 +135,7 @@ export default function CarList({ params }) {
   const [search, setSearch] = useState("");
   const [carToAction, setCarToAction] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [openSelect, setOpenSelect] = useState(null);
 
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imageError, setImageError] = useState("");
@@ -401,31 +402,7 @@ export default function CarList({ params }) {
                       </Button>
                     </TableCell>
                     <TableCell className="space-x-3 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setValue("make", car.make);
-                          setValue("model", car.model);
-                          setValue("year", car.year?.toString());
-                          setValue("price", car.price?.toString());
-                          setValue("mileage", car.mileage?.toString());
-                          setValue("color", car.color);
-                          setValue("fuelType", car.fuelType);
-                          setValue("transmission", car.transmission);
-                          setValue("bodyType", car.bodyType);
-                          setValue("seats", car.seats?.toString());
-                          setValue("status", car.status);
-                          setValue("description", car.description);
-                          setValue("featured", car.featured);
-                          setUploadedImages(car.images);
-                          setCarToAction(car.id);
-                          setEditDialogOpen(true);
-                        }}
-                      >
-                        <SquarePen className="size-4" />
-                      </Button>
-                      <DropdownMenu>
+                      <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                           <Button className="size-8" variant="ghost" size="sm">
                             <MoreHorizontal className="size-4" />
@@ -439,6 +416,25 @@ export default function CarList({ params }) {
                               View
                             </DropdownMenuItem>
                           </Link>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              for (const key in getValues()) {
+                                if (
+                                  Object.prototype.hasOwnProperty.call(
+                                    getValues(),
+                                    key
+                                  )
+                                ) {
+                                  setValue(key, car[key]);
+                                }
+                              }
+                              setUploadedImages(car.images);
+                              setCarToAction(car.id);
+                              setEditDialogOpen(true);
+                            }}
+                          >
+                            <SquarePen className="size-4" /> Edit
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuLabel>Status</DropdownMenuLabel>
                           <DropdownMenuItem
@@ -654,6 +650,10 @@ export default function CarList({ params }) {
                 <div>
                   <Label className="mb-2">Fuel Type</Label>
                   <Select
+                    open={openSelect === "fuelType"}
+                    onOpenChange={(isOpen) =>
+                      setOpenSelect(isOpen ? "fuelType" : null)
+                    }
                     onValueChange={(value) => setValue("fuelType", value)}
                     defaultValue={getValues("fuelType")}
                   >
@@ -684,6 +684,10 @@ export default function CarList({ params }) {
                 <div>
                   <Label className="mb-2">Transmission</Label>
                   <Select
+                    open={openSelect === "transmission"}
+                    onOpenChange={(isOpen) =>
+                      setOpenSelect(isOpen ? "transmission" : null)
+                    }
                     onValueChange={(value) => setValue("transmission", value)}
                     defaultValue={getValues("transmission")}
                   >
@@ -714,6 +718,10 @@ export default function CarList({ params }) {
                 <div>
                   <Label className="mb-2">Body Type</Label>
                   <Select
+                    open={openSelect === "bodyType"}
+                    onOpenChange={(isOpen) =>
+                      setOpenSelect(isOpen ? "bodyType" : null)
+                    }
                     onValueChange={(value) => setValue("bodyType", value)}
                     defaultValue={getValues("bodyType")}
                   >
@@ -761,6 +769,10 @@ export default function CarList({ params }) {
                 <div>
                   <Label className="mb-2">Status</Label>
                   <Select
+                    open={openSelect === "status"}
+                    onOpenChange={(isOpen) =>
+                      setOpenSelect(isOpen ? "status" : null)
+                    }
                     onValueChange={(value) => setValue("status", value)}
                     defaultValue={getValues("status")}
                   >
@@ -860,22 +872,21 @@ export default function CarList({ params }) {
 
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                       {uploadedImages.map((image, index) => (
-                        <div key={index} className="group relative">
+                        <div key={index} className="relative">
                           <Image
                             src={image}
                             alt={`Car Image ${index}`}
-                            className="h-28 w-full rounded-md object-cover"
+                            className="aspect-video w-full rounded-md object-cover"
                             height={112}
                             width={140}
                           />
                           <Button
                             type="button"
                             size="icon"
-                            variant="destructive"
-                            className="absolute top-1 right-1 size-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                            className="absolute top-1 right-1 size-5 bg-red-600/60 duration-200"
                             onClick={() => removeImage(index)}
                           >
-                            <X className="size-3" />
+                            <X className="size-4" />
                           </Button>
                         </div>
                       ))}
