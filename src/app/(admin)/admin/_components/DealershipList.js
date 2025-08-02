@@ -1,6 +1,6 @@
 "use client";
 
-import { getDealerships } from "@/actions/dealership";
+import { deleteDealership, getDealerships } from "@/actions/dealership";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +38,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useFetch from "@/hooks/useFetch";
-import { Landmark, MoreHorizontal, Search, Trash2, Users } from "lucide-react";
+import {
+  Landmark,
+  Loader2,
+  MoreHorizontal,
+  Search,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -46,6 +61,8 @@ const getRoleBadge = (status) => {
 
 export default function DealershipList() {
   const [dealerSearch, setDealerSearch] = useState("");
+  const [dealerToAction, setDealerToAction] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const {
     loading: fetchingDealers,
@@ -54,15 +71,33 @@ export default function DealershipList() {
     error: dealersError,
   } = useFetch(getDealerships);
 
+  const {
+    loading: deletingDealer,
+    fn: deleteDealerFn,
+    data: deleteDealerResult,
+    error: deleteDealerError,
+  } = useFetch(deleteDealership);
+
   useEffect(() => {
     fetchDealerships();
   }, []);
 
   useEffect(() => {
+    if (deleteDealerResult?.success) {
+      fetchDealerships();
+      toast.success("Dealership Deleted Successfully.");
+    }
+  }, [deleteDealerResult]);
+
+  useEffect(() => {
     if (dealersError) {
       toast.error("Failed to load Dealerships");
     }
-  }, [dealersError]);
+
+    if (deleteDealerError) {
+      toast.error("Failed to Delete Dealership.");
+    }
+  }, [dealersError, deleteDealerError]);
 
   const filteredDealers = dealersData?.success
     ? dealersData.data.filter(
@@ -75,6 +110,14 @@ export default function DealershipList() {
           ds.phone.toLowerCase().includes(dealerSearch.toLowerCase())
       )
     : [];
+
+  const handleDeleteDealer = async () => {
+    if (!dealerToAction) return;
+
+    await deleteDealerFn(dealerToAction.id);
+    setDeleteDialogOpen(false);
+    setDealerToAction(null);
+  };
 
   return (
     <Card>
@@ -136,7 +179,7 @@ export default function DealershipList() {
                     <TableCell>{dealership.phone}</TableCell>
                     <TableCell>{getRoleBadge(dealership.user.role)}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
+                      <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                           <Button className="size-8" variant="ghost" size="sm">
                             <MoreHorizontal className="size-4" />
@@ -155,7 +198,13 @@ export default function DealershipList() {
                             Copy User Email
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => {
+                              setDealerToAction(dealership);
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
                             <Trash2 className="size-4" />
                             Delete
                           </DropdownMenuItem>
@@ -166,6 +215,41 @@ export default function DealershipList() {
                 ))}
               </TableBody>
             </Table>
+
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Confirm Deletion</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete {dealerToAction?.name}? This
+                    action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setDeleteDialogOpen(false)}
+                    disabled={deletingDealer}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteDealer}
+                    disabled={deletingDealer}
+                  >
+                    {deletingDealer ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete Dealership"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         ) : (
           <div className="py-12 text-center">

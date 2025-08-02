@@ -48,3 +48,24 @@ export async function updateUserRole(userId, role) {
     throw new Error("Error updating user role : " + error.message);
   }
 }
+
+export async function deleteUser(userId) {
+  try {
+    const user = await getAdminUser();
+    if (user instanceof Error) throw user;
+
+    // Delete user
+    await DB.user.delete({
+      where: { id: userId },
+    });
+
+    // Revalidate paths
+    revalidatePath("/admin/users");
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    throw new Error("Error Deleting User : " + error.message);
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { getUsers, updateUserRole } from "@/actions/user";
+import { deleteUser, getUsers, updateUserRole } from "@/actions/user";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useFetch from "@/hooks/useFetch";
-import { MoreHorizontal, Search, Trash2, Users } from "lucide-react";
+import { Loader2, MoreHorizontal, Search, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -46,6 +54,8 @@ const getRoleBadge = (status) => {
 
 export default function UserList() {
   const [userSearch, setUserSearch] = useState("");
+  const [userToAction, setUserToAction] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const {
     loading: fetchingUsers,
@@ -61,6 +71,13 @@ export default function UserList() {
     error: updateRoleError,
   } = useFetch(updateUserRole);
 
+  const {
+    loading: deletingUser,
+    fn: deleteUserFn,
+    data: deleteUserResult,
+    error: deleteUserError,
+  } = useFetch(deleteUser);
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -73,6 +90,13 @@ export default function UserList() {
   }, [updateRoleResult]);
 
   useEffect(() => {
+    if (deleteUserResult?.success) {
+      fetchUsers();
+      toast.success("User Deleted Successfully.");
+    }
+  }, [deleteUserResult]);
+
+  useEffect(() => {
     if (usersError) {
       toast.error("Failed to load users");
     }
@@ -80,7 +104,11 @@ export default function UserList() {
     if (updateRoleError) {
       toast.error(`Failed to update user role: ${updateRoleError.message}`);
     }
-  }, [usersError, updateRoleError]);
+
+    if (deleteUserError) {
+      toast.error("Failed to Delete User.");
+    }
+  }, [usersError, updateRoleError, deleteUserError]);
 
   const filteredUsers = usersData?.success
     ? usersData.data.filter(
@@ -95,6 +123,14 @@ export default function UserList() {
   const handleRoleUpdate = async (user, newRole) => {
     const userData = { role: newRole };
     await updateRoleFn(user.id, userData);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToAction) return;
+
+    await deleteUserFn(userToAction.id);
+    setDeleteDialogOpen(false);
+    setUserToAction(null);
   };
 
   return (
@@ -118,7 +154,7 @@ export default function UserList() {
         {fetchingUsers ? (
           <Skeleton className="h-36 w-full" />
         ) : usersData?.success && filteredUsers.length > 0 ? (
-          <div>
+          <>
             <Table>
               <TableCaption>A list of your recent invoices.</TableCaption>
               <TableHeader>
@@ -153,7 +189,7 @@ export default function UserList() {
                     <TableCell>{user.phone}</TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
+                      <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                           <Button className="size-8" variant="ghost" size="sm">
                             <MoreHorizontal className="size-4" />
@@ -184,7 +220,13 @@ export default function UserList() {
                             Mark as User
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => {
+                              setUserToAction(user);
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
                             <Trash2 className="size-4" />
                             Delete
                           </DropdownMenuItem>
@@ -195,7 +237,42 @@ export default function UserList() {
                 ))}
               </TableBody>
             </Table>
-          </div>
+
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Confirm Deletion</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete {userToAction?.email}? This
+                    action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setDeleteDialogOpen(false)}
+                    disabled={deletingUser}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteUser}
+                    disabled={deletingUser}
+                  >
+                    {deletingUser ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete User"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
         ) : (
           <div className="py-12 text-center">
             <Users className="mx-auto mb-4 size-12 text-gray-500" />

@@ -425,7 +425,13 @@ export default function CarList({ params }) {
                                     key
                                   )
                                 ) {
-                                  setValue(key, car[key]);
+                                  if (typeof car[key] === "number") {
+                                    setValue(key, String(car[key]));
+                                  } else if (car[key] === null) {
+                                    setValue(key, "");
+                                  } else {
+                                    setValue(key, car[key]);
+                                  }
                                 }
                               }
                               setUploadedImages(car.images);
@@ -461,7 +467,7 @@ export default function CarList({ params }) {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            className="text-red-600"
+                            variant="destructive"
                             onClick={() => {
                               setCarToAction(car);
                               setDeleteDialogOpen(true);

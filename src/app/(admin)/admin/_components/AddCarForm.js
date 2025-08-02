@@ -55,7 +55,20 @@ const carFormSchema = z.object({
     return !isNaN(year) && year >= 1900 && year <= new Date().getFullYear() + 1;
   }, "Valid year required"),
   price: z.string().min(1, "Price is required"),
-  mileage: z.string().min(1, "Mileage is required"),
+  mileage: z
+    .string()
+    .min(1, "Mileage is required")
+    .refine(
+      (value) => {
+        if (Object.is(Number(value), NaN)) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message: "Please Enter a Valid Number.",
+      }
+    ),
   color: z.string().min(1, "Color is required"),
   fuelType: z.string().min(1, "Fuel type is required"),
   transmission: z.string().min(1, "Transmission is required"),

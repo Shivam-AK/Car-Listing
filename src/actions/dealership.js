@@ -2,6 +2,7 @@
 
 import { getAdminUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
+import { revalidatePath } from "next/cache";
 
 export async function getDealerships() {
   try {
@@ -33,5 +34,26 @@ export async function getDealerships() {
     };
   } catch (error) {
     throw new Error("Error Fetching Dealerships : " + error.message);
+  }
+}
+
+export async function deleteDealership(dealershipId) {
+  try {
+    const user = await getAdminUser();
+    if (user instanceof Error) throw user;
+
+    // Delete Dealership
+    await DB.dealershipInfo.delete({
+      where: { id: dealershipId },
+    });
+
+    // Revalidate paths
+    revalidatePath("/admin/users");
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    throw new Error("Error Deleting Dealership : " + error.message);
   }
 }

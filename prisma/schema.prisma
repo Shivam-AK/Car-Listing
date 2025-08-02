@@ -55,7 +55,7 @@ model Car {
   savedBy           UserSavedCar[]
   testDriveBookings TestDriveBooking[]
   dealershipId      String?
-  dealership        DealershipInfo?    @relation(fields: [dealershipId], references: [id])
+  dealership        DealershipInfo?    @relation(fields: [dealershipId], references: [id], onDelete: Cascade)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -131,9 +131,9 @@ model UserSavedCar {
 model TestDriveBooking {
   id          String        @id @default(uuid())
   carId       String
-  car         Car           @relation(fields: [carId], references: [id])
+  car         Car           @relation(fields: [carId], references: [id], onDelete: Cascade)
   userId      String
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   bookingDate DateTime      @db.Date
   startTime   String // Format: "HH:MM" (24-hour)
   endTime     String // Format: "HH:MM" (24-hour)

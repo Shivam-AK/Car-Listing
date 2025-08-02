@@ -306,14 +306,17 @@ export async function getCarById(carId) {
       if (booking) existingBookings = booking;
     }
 
-    const dealership = await DB.dealershipInfo.findUnique({
-      where: {
-        id: car.dealershipId,
-      },
-      include: {
-        workingHours: true,
-      },
-    });
+    let dealership = null;
+    if (car.dealershipId) {
+      dealership = await DB.dealershipInfo.findUnique({
+        where: {
+          id: car.dealershipId,
+        },
+        include: {
+          workingHours: true,
+        },
+      });
+    }
 
     return {
       success: true,

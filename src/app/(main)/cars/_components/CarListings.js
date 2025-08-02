@@ -24,7 +24,6 @@ export default function CarListings() {
   const searchParams = useSearchParams();
   const limit = 9;
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(searchParams.get("page") || 1);
 
   const search = searchParams.get("search") || "";
   const make = searchParams.get("make") || "";
@@ -62,14 +61,6 @@ export default function CarListings() {
     sortBy,
     page,
   ]);
-
-  useEffect(() => {
-    if (currentPage !== page) {
-      const params = new URLSearchParams(searchParams);
-      params.set("page", currentPage.toString());
-      router.push(`?${params.toString()}`);
-    }
-  }, [currentPage, router, searchParams, page]);
 
   if (loading && !result) {
     return <CarListingsLoading />;
@@ -113,7 +104,11 @@ export default function CarListings() {
 
   // Handle pagination clicks
   const handlePageChange = (pageNum) => {
-    setCurrentPage(pageNum);
+    if (pageNum !== page) {
+      const params = new URLSearchParams(searchParams);
+      params.set("page", pageNum.toString());
+      router.push(`?${params.toString()}`);
+    }
   };
 
   // Generate pagination URL

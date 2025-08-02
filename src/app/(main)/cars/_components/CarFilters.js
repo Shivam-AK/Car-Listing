@@ -112,10 +112,10 @@ export default function CarFilters({ filters }) {
     if (sortBy !== "newest") params.set("sortBy", sortBy);
 
     const search = searchParams.get("search");
-    const page = searchParams.get("page");
+    // const page = searchParams.get("page");
 
     if (search) params.set("search", search);
-    if (page && page !== "1") params.set("page", page);
+    // if (page && page !== "1") params.set("page", page);
 
     const query = params.toString();
     const url = query ? `${pathname}?${query}` : pathname;
@@ -164,7 +164,7 @@ export default function CarFilters({ filters }) {
               className="mb:w-96 w-11/12 overflow-y-auto"
             >
               <SheetHeader>
-                <SheetTitle>Filters.</SheetTitle>
+                <SheetTitle>Filters</SheetTitle>
               </SheetHeader>
 
               <div className="px-4">
