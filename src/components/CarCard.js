@@ -3,7 +3,7 @@
 import { toggleSavedCar } from "@/actions/carListing";
 import useFetch from "@/hooks/useFetch";
 import { useAuth } from "@clerk/nextjs";
-import { Heart, Loader2 } from "lucide-react";
+import { CarIcon, Heart, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -55,28 +55,24 @@ export default function CarCard({ car }) {
     <Card className="group gap-0 overflow-hidden py-0 transition hover:shadow-lg">
       <div className="relative aspect-video">
         {car.images && car.images.length > 0 ? (
-          <div className="relative h-full w-full">
-            <Image
-              src={car.images[0]}
-              alt={`${car.make} ${car.model}`}
-              fill
-              className="object-cover transition duration-300 group-hover:scale-105"
-            />
-          </div>
+          <Image
+            src={car.images[0]}
+            alt={`${car.make} ${car.model}`}
+            loading="lazy"
+            quality={55}
+            fill
+            className="aspect-video object-cover transition duration-300 group-hover:scale-105"
+          />
         ) : (
-          <div>
-            <Image
-              src={car.images[0]}
-              alt={`${car.make} ${car.model}`}
-              fill
-              className="object-cover transition duration-300 group-hover:scale-105"
-            />
+          <div className="flex-center size-full bg-gray-200">
+            <CarIcon className="h-12 w-12 text-gray-400" />
           </div>
         )}
 
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Add to Favorite"
           className={`absolute top-2 right-2 rounded-full bg-white/90 p-1.5 ${
             isSaved
               ? "text-red-500 hover:text-red-600"

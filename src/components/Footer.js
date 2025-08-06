@@ -21,7 +21,7 @@ export default function Footer() {
               <a
                 href="https://shibhu.com"
                 target="_blank"
-                className="text-cyan-400"
+                className="text-cyan-200"
               >
                 Shivam Kumar
               </a>{" "}

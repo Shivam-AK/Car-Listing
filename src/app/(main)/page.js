@@ -9,11 +9,15 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { bodyTypes, carMakes, faqItems } from "@/lib/constants";
-import { SignedOut } from "@clerk/nextjs";
 import { Calendar, Car, ChevronRight, Shield } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+
+const SignedOut = dynamic(() =>
+  import("@clerk/nextjs").then((mod) => mod.SignedOut)
+);
 
 export default function Home() {
   return (
@@ -74,6 +78,7 @@ export default function Home() {
                   <Image
                     src={make.image}
                     alt={`${make.name} Logo`}
+                    loading="lazy"
                     fill
                     className="object-contain"
                   />
@@ -149,6 +154,7 @@ export default function Home() {
                   <Image
                     src={type.image}
                     alt={`${type.name} Car`}
+                    loading="lazy"
                     fill
                     className="object-cover transition duration-300 group-hover:scale-105"
                   />

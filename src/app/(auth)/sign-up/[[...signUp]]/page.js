@@ -1,11 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { SignUp } from "@clerk/nextjs";
-import { Suspense } from "react";
+import dynamic from "next/dynamic";
+
+const SignUp = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignUp));
 
 export default function SignUpPage() {
-  return (
-    <Suspense>
-      <SignUp fallback={<Skeleton className="h-[560px] w-96" />} />
-    </Suspense>
-  );
+  return <SignUp fallback={<Skeleton className="h-[560px] w-96" />} />;
 }

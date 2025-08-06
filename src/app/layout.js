@@ -1,7 +1,11 @@
 import { Inter } from "next/font/google";
 import "@/app/globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import dynamic from "next/dynamic";
 import { Toaster } from "sonner";
+
+const ClerkProvider = dynamic(() =>
+  import("@clerk/nextjs").then((mod) => mod.ClerkProvider)
+);
 
 const inter = Inter({ subsets: ["latin"] });
 

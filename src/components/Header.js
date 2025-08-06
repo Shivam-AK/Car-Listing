@@ -1,10 +1,25 @@
 import userExists from "@/lib/userExists";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { ArrowLeft, CarFront, Heart, Layout } from "lucide-react";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
+
+const SignedOut = dynamic(() =>
+  import("@clerk/nextjs").then((mod) => mod.SignedOut)
+);
+
+const SignedIn = dynamic(() =>
+  import("@clerk/nextjs").then((mod) => mod.SignedIn)
+);
+
+const SignInButton = dynamic(() =>
+  import("@clerk/nextjs").then((mod) => mod.SignInButton)
+);
+
+const UserButton = dynamic(() =>
+  import("@clerk/nextjs").then((mod) => mod.UserButton)
+);
 
 export default async function Header({ isAdminPage = false }) {
   const user = await userExists();
@@ -16,8 +31,8 @@ export default async function Header({ isAdminPage = false }) {
       <h1 className="size-0 truncate">Vahiql Listing</h1>
       <div className="flex-between mx-auto gap-x-2 px-4 py-2">
         <Link href={isAdminPage ? "/admin" : "/"} className="relative flex">
-          <Image
-            src="/logo.png"
+          <img
+            src="/logo.webp"
             alt="Vahiql Logo"
             width={200}
             height={60}
