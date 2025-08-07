@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 const socialLink = [
-  { title: "Portfolio", url: "https://shibhu.com/" },
   { title: "Github", url: "https://github.com/Shivam-AK/" },
   {
     title: "Linked In",
@@ -19,7 +18,7 @@ export default function Footer() {
             <p className="text-base text-gray-200">
               Designed and Developed by{" "}
               <a
-                href="https://shibhu.com"
+                href="https://www.linkedin.com/in/shivam-web-developer-designer/"
                 target="_blank"
                 className="text-cyan-200"
               >
