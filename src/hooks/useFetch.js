@@ -13,8 +13,12 @@ export default function useFetch(cb) {
 
     try {
       const response = await cb(...args);
-      setData(response);
-      setError(null);
+      if (response.success) {
+        setData(response);
+      } else {
+        setError(response);
+        toast.error(response.message);
+      }
     } catch (error) {
       setError(error);
       toast.error(error.message);

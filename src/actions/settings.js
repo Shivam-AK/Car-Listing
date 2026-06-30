@@ -2,6 +2,7 @@
 
 import { getBothUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
+import { getErrorMessage } from "@/utils/error-handling";
 import { revalidatePath } from "next/cache";
 
 export async function getDealershipInfo() {
@@ -22,7 +23,7 @@ export async function getDealershipInfo() {
     });
 
     if (!dealership) {
-      throw new Error("Please Setup Your Dealership First.");
+      throw "Please Setup Your Dealership First.";
     }
 
     return {
@@ -34,7 +35,11 @@ export async function getDealershipInfo() {
       },
     };
   } catch (error) {
-    throw new Error("Error fetching dealership info : " + error.message);
+    console.error("Error fetching dealership info : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -49,7 +54,7 @@ export async function saveWorkingHours(workingHours) {
     });
 
     if (!dealership) {
-      throw new Error("Dealership info not found");
+      throw "Dealership info not found";
     }
 
     // Update working hours - first delete existing hours
@@ -77,7 +82,11 @@ export async function saveWorkingHours(workingHours) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error saving working hours : " + error.message);
+    console.error("Error saving working hours : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -115,6 +124,10 @@ export async function saveDealership(data) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error Saving Dealership : " + error.message);
+    console.error("Error Saving Dealership : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }

@@ -3,6 +3,7 @@
 import aj from "@/lib/arcjet";
 import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
+import { getErrorMessage } from "@/utils/error-handling";
 import { request } from "@arcjet/next";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -36,14 +37,14 @@ export async function processImageSearch(file) {
           },
         });
 
-        throw new Error("Too many requests. Please try again later.");
+        throw "Too many requests. Please try again later.";
       }
-      throw new Error("Request blocked");
+      throw "Request blocked";
     }
 
     // Check if API key is available
     if (!process.env.GEMINI_API_KEY) {
-      throw new Error("Gemini API Key is not configured");
+      throw "Gemini API Key is not configured";
     }
 
     // Initialize Gemini API
@@ -101,7 +102,11 @@ export async function processImageSearch(file) {
       };
     }
   } catch (error) {
-    throw new Error("AI Search error : " + error.message);
+    console.error("AI Search error : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -133,6 +138,10 @@ export async function getFeaturedCars(isUser = null, limit = 3) {
 
     return serializedCars;
   } catch (error) {
-    throw new Error("Error fetching featured cars : " + error.message);
+    console.error("Error fetching featured cars : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }

@@ -2,6 +2,7 @@
 
 import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
+import { getErrorMessage } from "@/utils/error-handling";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -14,19 +15,19 @@ export async function bookTestDrive(
 ) {
   try {
     const { userId } = await auth();
-    if (!userId) throw new Error("You must be logged in to Book a Test Drive.");
+    if (!userId) throw "You must be logged in to Book a Test Drive.";
 
     const user = await DB.user.findUnique({
       where: { clerkUserId: userId },
     });
 
-    if (!user) throw new Error("User Not Found.");
+    if (!user) throw "User Not Found.";
 
     const car = await DB.car.findUnique({
       where: { id: carId, status: "AVAILABLE" },
     });
 
-    if (!car) throw new Error("Car not available for Test Drive.");
+    if (!car) throw "Car not available for Test Drive.";
 
     const existingBooking = await DB.testDriveBooking.findFirst({
       where: {
@@ -38,9 +39,7 @@ export async function bookTestDrive(
     });
 
     if (existingBooking) {
-      throw new Error(
-        "This time slot is already booked. Please select another time."
-      );
+      throw "This time slot is already booked. Please select another time.";
     }
 
     const booking = await DB.testDriveBooking.create({
@@ -63,23 +62,24 @@ export async function bookTestDrive(
       data: booking,
     };
   } catch (error) {
-    throw new Error(
-      "Error Booking test drive : " + error.message ||
-        "Failed to book test drive"
-    );
+    console.error("Error Booking test drive : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
 export async function getUserTestDrives() {
   try {
     const { userId } = await auth();
-    if (!userId) throw new Error("You must be logged in to show a Test Drive.");
+    if (!userId) throw "You must be logged in to show a Test Drive.";
 
     const user = await DB.user.findUnique({
       where: { clerkUserId: userId },
     });
 
-    if (!user) throw new Error("User Not Found.");
+    if (!user) throw "User Not Found.";
 
     const bookings = await DB.testDriveBooking.findMany({
       where: { userId: user.id },
@@ -107,26 +107,30 @@ export async function getUserTestDrives() {
       data: formattedBookings,
     };
   } catch (error) {
-    throw new Error("Error Fetching test drives : " + error.message);
+    console.error("Error Fetching test drives : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
 export async function cancelTestDrive(bookingId) {
   try {
     const { userId } = await auth();
-    if (!userId) throw new Error("You must be logged in to show a Test Drive.");
+    if (!userId) throw "You must be logged in to show a Test Drive.";
 
     const user = await DB.user.findUnique({
       where: { clerkUserId: userId },
     });
 
-    if (!user) throw new Error("User Not Found.");
+    if (!user) throw "User Not Found.";
 
     const booking = await DB.testDriveBooking.findUnique({
       where: { id: bookingId },
     });
 
-    if (!booking) throw new Error("Booking Not Found.");
+    if (!booking) throw "Booking Not Found.";
 
     if (
       !(
@@ -135,15 +139,15 @@ export async function cancelTestDrive(bookingId) {
         user.role === "ADMIN"
       )
     ) {
-      throw new Error("Unauthorized to Cancel this Booking.");
+      throw "Unauthorized to Cancel this Booking.";
     }
 
     if (booking.status === "CANCELLED") {
-      throw new Error("Booking is already cancelled.");
+      throw "Booking is already cancelled.";
     }
 
     if (booking.status === "COMPLETED") {
-      throw new Error("Cannot cancel a completed Booking.");
+      throw "Cannot cancel a completed Booking.";
     }
 
     await DB.testDriveBooking.update({
@@ -159,6 +163,10 @@ export async function cancelTestDrive(bookingId) {
       message: "Test Drive Cancelled Successfully.",
     };
   } catch (error) {
-    throw new Error("Error Cancelling test drives : " + error.message);
+    console.error("Error Cancelling test drives : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }

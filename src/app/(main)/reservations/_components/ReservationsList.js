@@ -1,13 +1,26 @@
 "use client";
 
-import { cancelTestDrive } from "@/actions/test-drive";
+import { cancelTestDrive, getUserTestDrives } from "@/actions/test-drive";
 import TestDriveCard from "@/components/TestDriveCard";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import useFetch from "@/hooks/useFetch";
 import { Calendar } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
-export default function ReservationsList({ initialData }) {
+export default function ReservationsList() {
+  const {
+    loading,
+    fn: userTestDrive,
+    data: initialData,
+    error,
+  } = useFetch(getUserTestDrives);
+
+  useEffect(() => {
+    userTestDrive();
+  }, []);
+
   const upcomingBookings = initialData?.data?.filter((booking) =>
     ["PENDING", "CONFIRMED"].includes(booking.status)
   );
@@ -26,7 +39,7 @@ export default function ReservationsList({ initialData }) {
     await cancelBookingFn(bookingId);
   };
 
-  if (initialData?.data?.length === 0) {
+  if (initialData?.data?.length === 0 || error) {
     return (
       <div className="flex-center min-h-96 flex-col rounded-lg border bg-gray-50 p-8 text-center">
         <div className="mb-4 rounded-full bg-gray-100 p-4">
@@ -44,44 +57,48 @@ export default function ReservationsList({ initialData }) {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="mb-4 text-2xl font-bold">Upcoming Test Drives</h2>
-        {upcomingBookings.length === 0 ? (
-          <p className="text-gray-500 italic">No upcoming test drives.</p>
-        ) : (
-          <div className="space-y-3">
-            {upcomingBookings.map((booking) => (
-              <TestDriveCard
-                key={booking.id}
-                booking={booking}
-                onCancel={handleCancelBooking}
-                isCancelling={cancelling}
-                showActions
-                cancelError={cancelError}
-                viewMode="list"
-              />
-            ))}
+  if (!loading && initialData) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="mb-4 text-2xl font-bold">Upcoming Test Drives</h2>
+          {upcomingBookings?.length === 0 ? (
+            <p className="text-gray-500 italic">No upcoming test drives.</p>
+          ) : (
+            <div className="space-y-3">
+              {upcomingBookings?.map((booking) => (
+                <TestDriveCard
+                  key={booking.id}
+                  booking={booking}
+                  onCancel={handleCancelBooking}
+                  isCancelling={cancelling}
+                  showActions
+                  cancelError={cancelError}
+                  viewMode="list"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {pastBookings?.length > 0 && (
+          <div>
+            <h2 className="mb-4 text-2xl font-bold">Past Test Drives</h2>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {pastBookings?.map((booking) => (
+                <TestDriveCard
+                  key={booking.id}
+                  booking={booking}
+                  showActions={false}
+                  isPast
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
+    );
+  }
 
-      {pastBookings.length > 0 && (
-        <div>
-          <h2 className="mb-4 text-2xl font-bold">Past Test Drives</h2>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {pastBookings.map((booking) => (
-              <TestDriveCard
-                key={booking.id}
-                booking={booking}
-                showActions={false}
-                isPast
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <Skeleton className="h-96 w-full" />;
 }

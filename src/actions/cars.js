@@ -4,6 +4,7 @@ import { getBothUser } from "@/lib/auth";
 import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
 import { createClient } from "@/lib/superbase";
+import { getErrorMessage } from "@/utils/error-handling";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -20,12 +21,12 @@ export async function processCarImageWithAI(file) {
   try {
     // Check if API key is available
     if (!process.env.GEMINI_API_KEY) {
-      throw new Error("Gemini API Key is not configured");
+      throw "Gemini API Key is not configured";
     }
 
     // Initialize Gemini API
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Convert image file to base64
     const base64Image = await fileToBase64(file);
@@ -101,9 +102,7 @@ export async function processCarImageWithAI(file) {
       );
 
       if (missingFields.length > 0) {
-        throw new Error(
-          `AI Response missing Required Fields : ${missingFields.join(", ")}`
-        );
+        throw `AI Response missing Required Fields : ${missingFields.join(", ")}`;
       }
 
       return {
@@ -119,7 +118,11 @@ export async function processCarImageWithAI(file) {
       };
     }
   } catch (error) {
-    throw new Error("Gemini API error : " + error.message);
+    console.error("Gemini API error : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -133,7 +136,7 @@ export async function addCar({ carData, images }) {
     });
 
     if (!dealership) {
-      throw new Error("Please Setup Your Dealership First.");
+      throw "Please Setup Your Dealership First.";
     }
 
     // Create a unique folder name for this car's images
@@ -177,7 +180,7 @@ export async function addCar({ carData, images }) {
 
       if (error) {
         console.error("Error uploading image:", error);
-        throw new Error(`Failed to upload image: ${error.message}`);
+        throw `Failed to upload image: ${error.message}`;
       }
 
       // Get the public URL for the uploaded file
@@ -187,7 +190,7 @@ export async function addCar({ carData, images }) {
     }
 
     if (imageUrls.length === 0) {
-      throw new Error("No Valid Image were Upload.");
+      throw "No Valid Image were Upload.";
     }
 
     // Add the car to the database
@@ -219,7 +222,11 @@ export async function addCar({ carData, images }) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error Adding New car : " + error.message);
+    console.error("Error Adding New car : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -266,7 +273,11 @@ export async function getCars(filter) {
       data: serializedCars,
     };
   } catch (error) {
-    throw new Error("Error Fetching Cars : " + error.message);
+    console.error("Error Fetching Cars : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -329,7 +340,11 @@ export async function deleteCar(id) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error Deleting Car : " + error.message);
+    console.error("Error Deleting Car : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -343,7 +358,7 @@ export async function updateCar({ carId, carData, images }) {
       where: { id: carId },
     });
 
-    if (!existingCar) throw new Error("Car Not Found");
+    if (!existingCar) throw "Car Not Found";
 
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
@@ -379,7 +394,7 @@ export async function updateCar({ carId, carData, images }) {
 
         if (error) {
           console.error("Error uploading image:", error);
-          throw new Error(`Failed to upload image: ${error.message}`);
+          throw `Failed to upload image: ${error.message}`;
         }
 
         const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-listing-image/${filePath}`;
@@ -387,7 +402,7 @@ export async function updateCar({ carId, carData, images }) {
       }
 
       if (imageUrls.length === 0) {
-        throw new Error("No Valid Image were Uploaded.");
+        throw "No Valid Image were Uploaded.";
       }
 
       const deleteImagePath = existingCar.images
@@ -401,7 +416,7 @@ export async function updateCar({ carId, carData, images }) {
 
         if (error) {
           console.error("Error Deleting image:", error);
-          throw new Error(`Failed to Delete image: ${error.message}`);
+          throw `Failed to Delete image: ${error.message}`;
         }
       }
     }
@@ -430,6 +445,10 @@ export async function updateCar({ carId, carData, images }) {
 
     return { success: true };
   } catch (error) {
-    throw new Error("Error Updating Car : " + error?.message);
+    console.error("Error Updating Car : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }

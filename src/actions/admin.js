@@ -2,6 +2,7 @@
 
 import { getBothUser, getLoggedInUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
+import { getErrorMessage } from "@/utils/error-handling";
 import { revalidatePath } from "next/cache";
 
 export async function getAdmin() {
@@ -90,7 +91,11 @@ export async function getAdminTestDrives(status = "", filter) {
       data: formattedBookings,
     };
   } catch (error) {
-    throw new Error("Error fetching test drives : " + error.message);
+    console.error("Error fetching test drives : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -104,7 +109,7 @@ export async function updateTestDriveStatus(bookingId, newStatus) {
     });
 
     if (!booking) {
-      throw new Error("Booking Not Found.");
+      throw "Booking Not Found.";
     }
 
     const validStatuses = [
@@ -116,7 +121,7 @@ export async function updateTestDriveStatus(bookingId, newStatus) {
     ];
 
     if (!validStatuses.includes(newStatus)) {
-      throw new Error("Please Enter Valid Status Name.");
+      throw "Please Enter Valid Status Name.";
     }
 
     await DB.testDriveBooking.update({
@@ -132,7 +137,11 @@ export async function updateTestDriveStatus(bookingId, newStatus) {
       message: "Test Drive Status Updated successfully.",
     };
   } catch (error) {
-    throw new Error("Error Updating Test Drive Status : " + error.message);
+    console.error("Error Updating Test Drive Status : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -293,7 +302,11 @@ export async function getDashboardData(filter) {
       },
     };
   } catch (error) {
-    throw new Error("Error Fetching Dashboard Data : " + error.message);
+    console.error("Error Fetching Dashboard Data : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -337,6 +350,10 @@ export async function getAllDealerships() {
       },
     };
   } catch (error) {
-    throw new Error("Error Fetch All Dealerships : " + error.message);
+    console.error("Error Fetching All Dealerships : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }

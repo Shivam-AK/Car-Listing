@@ -2,6 +2,7 @@
 
 import { getAdminUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
+import { getErrorMessage } from "@/utils/error-handling";
 import { revalidatePath } from "next/cache";
 
 export async function getDealerships() {
@@ -33,7 +34,11 @@ export async function getDealerships() {
       })),
     };
   } catch (error) {
-    throw new Error("Error Fetching Dealerships : " + error.message);
+    console.error("Error Fetching Dealerships : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -54,6 +59,10 @@ export async function deleteDealership(dealershipId) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error Deleting Dealership : " + error.message);
+    console.error("Error Deleting Dealership : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }

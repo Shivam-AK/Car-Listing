@@ -3,6 +3,7 @@
 import { getLoggedInUser } from "@/lib/auth";
 import { serializeCarData } from "@/lib/helper";
 import DB from "@/lib/prisma.db";
+import { getErrorMessage } from "@/utils/error-handling";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -47,7 +48,11 @@ export async function getCarFilters() {
       },
     };
   } catch (error) {
-    throw new Error("Error fetching car filters : " + error.message);
+    console.error("Error fetching car filters : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -145,7 +150,11 @@ export async function getCars(
       },
     };
   } catch (error) {
-    throw new Error("Error fetching cars : " + error.message);
+    console.error("Error fetching cars : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -206,7 +215,11 @@ export async function toggleSavedCar(carId) {
       message: "Car Added to Favorites.",
     };
   } catch (error) {
-    throw new Error("Error toggling saved car : " + error.message);
+    console.error("Error toggling saved car : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -341,6 +354,10 @@ export async function getCarById(carId) {
       },
     };
   } catch (error) {
-    throw new Error("Error Fetching Car Details : " + error.message);
+    console.error("Error Fetching Car Details : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }

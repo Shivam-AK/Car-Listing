@@ -2,6 +2,7 @@
 
 import { getAdminUser } from "@/lib/auth";
 import DB from "@/lib/prisma.db";
+import { getErrorMessage } from "@/utils/error-handling";
 import { revalidatePath } from "next/cache";
 
 export async function getUsers() {
@@ -23,7 +24,11 @@ export async function getUsers() {
       })),
     };
   } catch (error) {
-    throw new Error("Error fetching users : " + error.message);
+    console.error("Error fetching users : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -45,7 +50,11 @@ export async function updateUserRole(userId, role) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error updating user role : " + error.message);
+    console.error("Error updating user role : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
 
@@ -66,6 +75,10 @@ export async function deleteUser(userId) {
       success: true,
     };
   } catch (error) {
-    throw new Error("Error Deleting User : " + error.message);
+    console.error("Error Deleting User : ", error);
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
   }
 }
